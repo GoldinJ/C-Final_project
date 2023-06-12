@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 #define LINE_LEN 50
-#define MAX_LINE_LEN 100
+#define MAX_LINE_LEN 80
 #define COMMAND_LEN 4
 #define PASS 1
 #define FAILED 0
@@ -110,11 +110,6 @@ int validate_syntax(char* line) {
         return 0;  /* Last token is an operand */
     }
 
-    /* Validate the number of commas */
-    if (commaCount == 0) {
-        return 0;  /* No commas found */
-    }
-
     return 1;
 }
 
@@ -153,11 +148,13 @@ int main() {
     char line2[] = ".data 7, -57 , +17, , 9";
     char line3[] = ".data 7, -57 , +17, 9,";
     char line4[] = "   .data 7, -57 , +17, 9   ";
-    char line5[] = ".data 7, -57 , +17,, 9";
+    char line5[] = ".string \"abcd\"";
+    char line6[] = ".entry HELLO";
+    char line7[] = ".extern L3";
     int i = 0;
     int j = 0;
     char **cmnd = NULL;
-    char *arr[] = {line1, line2, line3, line4, line5, NULL};
+    char *arr[] = {line1, line2, line3, line4, line5, line6, line7, NULL};
     
     for(i = 0; arr[i] != NULL; i++ ){
         if (validate_syntax(arr[i])){

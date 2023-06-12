@@ -44,8 +44,10 @@ typedef struct reg_w
 
 
 /*Defines a 12 bit machine word containing data from .data or .string*/
-typedef struct data_w{
-    int data: 12
+typedef struct data_w
+{
+    int data: 12;
+
 }data_w;
 
 
