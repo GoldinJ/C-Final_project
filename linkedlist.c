@@ -1,23 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#define REVERSE 1
-#define FORWARD 0
+#include "linkedlist.h"
 
-typedef struct Node {
-    unsigned long value;
-    struct Node* next;
-    struct Node* prev;
-} Node;
-
-typedef struct LinkedList {
-    Node* head;
-    Node* tail;
-} LinkedList;
-
-void add_node(LinkedList* lst, int val) {
+void add_node(LinkedList* lst, char** instruction) {
     Node* newNode = (Node*)(malloc(sizeof(Node)));
 
-    newNode->value = val;
+    newNode->instruction = instruction;
     newNode->next = NULL;
 
     if (lst->head == NULL) {
@@ -32,37 +18,48 @@ void add_node(LinkedList* lst, int val) {
     }
 }
 
-void free_list(LinkedList* lst) {
-    Node* p = lst->head;
-    Node* nextNode;
-
-    while (p != NULL) {
-        nextNode = p->next;
-        free(p);
-        p = nextNode;
+void free_list(LinkedList* list) {
+    Node* current = list->head;
+    Node* temp = NULL;
+    int i;
+    while (current != NULL) {
+        temp = current;
+        current = current->next;
+        
+        /* Free the instruction */
+        for (i = 0; temp->instruction[i] != NULL; i++) {
+            free(temp->instruction[i]);
+        }
+        free(temp->instruction);
+        
+        /* Free the node */
+        free(temp);
     }
-
-    lst->head = NULL;
-    lst->tail = NULL;
-}
-
-void print_to_file(FILE *fptr, LinkedList *lst,  int reverse){
-    Node* p = (reverse == REVERSE) ? lst->tail : lst->head;
-
-    while (p != NULL) {
-        fprintf(fptr, "%lu ", p->value);
-        p = (reverse == REVERSE) ? p->prev : p->next;
-    }
-    fprintf(fptr, "\n");
+    
+    /* Reset the head and tail pointers */
+    list->head = NULL;
+    list->tail = NULL;
 }
 
 void print_list(LinkedList* lst, int reverse) {
 
-    Node* p = (reverse == REVERSE) ? lst->tail : lst->head;
-
-    while (p != NULL) {
-        printf("%lu ", p->value);
-        p = (reverse == REVERSE) ? p->prev : p->next;
+    Node* current = lst->head;
+    Node* temp = NULL;
+    int i;
+    while (current != NULL) {
+        temp = current;
+        
+        /* Print the instructions */
+        for (i = 0; temp->instruction[i] != NULL; i++) {
+            printf("%s", temp->instruction[i]);
+            
+            /* Print a separator if there is another instruction */
+            if (temp->instruction[i + 1] != NULL) {
+                printf("|");
+            }
+        }
+        printf("\n=================================\n");
+        
+        current = current->next;
     }
-    putchar('\n');
 }

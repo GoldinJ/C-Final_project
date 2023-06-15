@@ -1,4 +1,13 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define INSTR_SIZE 20
+#define MAX_LINE_LEN 80
 #define MAX_LABEL_LEN 31
 #define MAX_INT_VALUE 1023
 #define MIN_INT_VALUE -1023
@@ -14,6 +23,8 @@ enum dt_enum {ENTRY, EXTERN, DATA, STR};
 
 enum addressing {IMDT=1, DRCT=3, DRCT_REG=5};
 enum are {A, R, E};
+
+enum booleans {FALSE, TRUE};
 
 /*Defines a 12 bit machine word - the fisrt word of instruction*/
 typedef struct first_w
@@ -49,6 +60,27 @@ typedef struct data_w
     int data: 12;
 
 }data_w;
+
+/*Defines a 12 bit general machine word: first word of instruction or an additional word of following types: immediate/direct additional word, register word or data word */
+/*Contains a label if exists*/
+
+typedef struct machine_w
+{
+    char *label;
+    union word
+    {
+        first_w f_word;
+        imdt_drct_w im_drct_w;
+        reg_w r_word;
+        data_w d_word;
+
+    }word;
+    
+}machine_w;
+
+
+#endif
+
 
 
 

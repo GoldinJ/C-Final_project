@@ -1,14 +1,16 @@
 CC = gcc
 CFLAGS = -ansi -pedantic -Wall
 
-all: utilities
+all: parser
 
-utilities: utilities.o
-	$(CC) $(CFLAGS) -o utilities utilities.o
+parser: parser.o linkedlist.o
+	$(CC) $(CFLAGS) -o parser parser.o linkedlist.o
 
-utilities.o: utilities.c 
-	$(CC) $(CFLAGS) -c utilities.c 
+parser.o: parser.c constants.h linkedlist.h
+	$(CC) $(CFLAGS) -c parser.c 
 
+linkedlist.o: linkedlist.c linkedlist.h
+	$(CC) $(CFLAGS) -c linkedlist.c 
 
 clean:
-	rm -f utilities *.o
+	rm -f parser debug *.o
