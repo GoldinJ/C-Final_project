@@ -12,5 +12,8 @@ parser.o: parser.c constants.h linkedlist.h
 linkedlist.o: linkedlist.c linkedlist.h
 	$(CC) $(CFLAGS) -c linkedlist.c 
 
+debug: CFLAGS += -g
+debug: clean parser
+
 clean:
 	rm -f parser debug *.o

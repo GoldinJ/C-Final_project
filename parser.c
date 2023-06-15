@@ -113,7 +113,7 @@ char** parse_command(char* line){
 
     while (token != NULL) {
 
-        command[i] = malloc(strlen(token) * sizeof(char));
+        command[i] = malloc((strlen(token) + 1) * sizeof(char));
         strcpy(command[i], token);
         i++;
         token = strtok(NULL, " \t, \t");
