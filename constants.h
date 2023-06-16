@@ -7,10 +7,11 @@
 #include <ctype.h>
 
 #define INSTR_SIZE 20
-#define MAX_LINE_LEN 80
+#define MAX_LINE_LEN 81
 #define MAX_LABEL_LEN 31
 #define MAX_INT_VALUE 1023
 #define MIN_INT_VALUE -1023
+
 
 char* opcodes[] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop"};
 enum Opcodes_enum {MOV, CMP, ADD, SUB, NOT, CLR, LEA, INC, DEC, JMP, BNE, RED, PRN, JSR, RTS, STOP};
@@ -67,6 +68,7 @@ typedef struct data_w
 typedef struct machine_w
 {
     char *label;
+    int placeholder;
     union word
     {
         first_w f_word;

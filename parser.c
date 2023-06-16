@@ -1,5 +1,8 @@
 #include "constants.h"
+#include "errors.h"
 #include "linkedlist.h"
+
+#define IS_CHAR(c) (((c) >= 'A' && (c) <= 'Z') || ((c) >= 'a' && (c) <= 'z'))
 
 
 void strip(char *str) {
@@ -81,27 +84,32 @@ int validate_syntax(char* line) {
     int i;
     int len = strlen(line);
     int commaCount = 0;
-    int operandExpected = 1;
+    int operandExpected = TRUE;
 
     for (i = 0; i < len; i++) {
-        if (line[i] == ' ' || line[i] == '\t') {
-            continue;  /* Skip whitespace */
-        } else if (line[i] == ',') {
+        if(i == 0 && !IS_CHAR(line[0]) && line[0] != '.'){
+            printf("%s\n", ILLEGAL_CHARACTER_ERROR(line[0]));
+            return FALSE;
+        }
+
+
+        else if (line[i] == ',') {
             if (operandExpected || i == 0 || line[i - 1] == ',') {
-                return 0;  /* Comma in an unexpected position */
+                return FALSE;  /* Comma in an unexpected position */
             }
             commaCount++;
-            operandExpected = 1;
+            operandExpected = TRUE;
+
         } else {
-            operandExpected = 0;
+            operandExpected = FALSE;
         }
     }
 
     if (operandExpected) {
-        return 0;  /* Last token is an operand */
+        return FALSE;  /* Last token is an operand */
     }
 
-    return 1;
+    return TRUE;
 }
 
 char** parse_command(char* line){
@@ -148,7 +156,7 @@ int main (){
         strcpy(line_copy, line);
 
         if (!validate_syntax(line_copy)) {
-            printf("Error in line %s\n", line_copy);
+            /* printf("Error in line %s\n", line_copy); */
             free(line_copy);
             free(line);
             continue;

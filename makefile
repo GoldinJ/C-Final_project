@@ -6,7 +6,7 @@ all: parser
 parser: parser.o linkedlist.o
 	$(CC) $(CFLAGS) -o parser parser.o linkedlist.o
 
-parser.o: parser.c constants.h linkedlist.h
+parser.o: parser.c constants.h linkedlist.h errors.h
 	$(CC) $(CFLAGS) -c parser.c 
 
 linkedlist.o: linkedlist.c linkedlist.h
