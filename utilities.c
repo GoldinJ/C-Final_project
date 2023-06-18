@@ -3,11 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#define LINE_LEN 50
-#define MAX_LINE_LEN 80
-#define COMMAND_LEN 4
-#define PASS 1
-#define FAILED 0
 
 char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

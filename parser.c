@@ -1,9 +1,5 @@
 #include "constants.h"
 #include "errors.h"
-#include "linkedlist.h"
-
-#define IS_CHAR(c) (((c) >= 'A' && (c) <= 'Z') || ((c) >= 'a' && (c) <= 'z'))
-
 
 void strip(char *str) {
     int len = strlen(str);
@@ -88,7 +84,7 @@ int validate_syntax(char* line) {
 
     for (i = 0; i < len; i++) {
         if(i == 0 && !IS_CHAR(line[0]) && line[0] != '.'){
-            printf("%s\n", ILLEGAL_CHARACTER_ERROR(line[0]));
+            printf(ILLEGAL_CHARACTER_IN_LABEL, line[0]);
             return FALSE;
         }
 
@@ -139,12 +135,13 @@ void free_command(char** command) {
     free(command); /*free the array itself*/ 
 }
 
-int main (){
+/* int main (){
 
     char *line;
     char *line_copy;
     char **instruction = NULL;
     int line_len;
+    int i = 0;
 
     LinkedList list;
     list.head = NULL;
@@ -156,20 +153,30 @@ int main (){
         strcpy(line_copy, line);
 
         if (!validate_syntax(line_copy)) {
-            /* printf("Error in line %s\n", line_copy); */
+
             free(line_copy);
             free(line);
             continue;
         }
 
         instruction = parse_command(line_copy);
+        i = 0;
+        printf("%s ------ ", line);
+        while (instruction[i] != NULL)
+        {
+            printf("%d | ", get_token_type(instruction[i]));
+            i++;
+        }
+        printf("\n++++++++++++++++++++++++++++++++\n");
+        
         add_node(&list, instruction);
         free(line_copy);
-        free(line); /* free the memory allocated by get_line */
+        free(line);
     }
 
     print_list(&list, FALSE);
     free_list(&list);
 
+
     return 0;
-}
+} */

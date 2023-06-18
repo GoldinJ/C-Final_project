@@ -1,9 +1,16 @@
 #include "linkedlist.h"
 
-void add_node(LinkedList* lst, char** instruction) {
+void add_node(LinkedList* lst, char** instruction, machine_w* word) {
+
     Node* newNode = (Node*)(malloc(sizeof(Node)));
 
+    if (word == NULL){
+        free(newNode);
+        return;
+    }
+
     newNode->instruction = instruction;
+    newNode->word = word;
     newNode->next = NULL;
 
     if (lst->head == NULL) {
@@ -31,6 +38,8 @@ void free_list(LinkedList* list) {
             free(temp->instruction[i]);
         }
         free(temp->instruction);
+        free(temp->word->label);
+        free(temp->word);
         
         /* Free the node */
         free(temp);
@@ -39,6 +48,19 @@ void free_list(LinkedList* list) {
     /* Reset the head and tail pointers */
     list->head = NULL;
     list->tail = NULL;
+}
+
+void print_last_12_bits(unsigned int num) {
+    int mask = (1 << 12) - 1;  
+    int last12Bits = num & mask;
+    int i;
+    int bit;
+
+    for (i = 11; i >= 0; i--) {
+        bit = (last12Bits >> i) & 1;
+        printf("%d", bit);
+    }
+    printf("\n");
 }
 
 void print_list(LinkedList* lst, int reverse) {
@@ -58,6 +80,8 @@ void print_list(LinkedList* lst, int reverse) {
                 printf("|");
             }
         }
+        printf("\n");
+        print_last_12_bits(*((unsigned int *)(temp->word->word.f_word)));
         printf("\n=================================\n");
         
         current = current->next;
