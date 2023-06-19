@@ -252,14 +252,14 @@ machine_w* encode_first_w(char** line){
                 }
 
                 else if(is_num(line[OPRND1])){
-                    f_word->src_operand = IMDT;
+                    f_word->dest_operand = IMDT;
                 }
                 else if (get_reg_index(line[OPRND1]) != -1)
                 {
-                    f_word->src_operand = DRCT_REG;
+                    f_word->dest_operand= DRCT_REG;
                 }
                 else
-                    f_word->src_operand = DRCT;
+                    f_word->dest_operand = DRCT;
                 
                 m_word->word.f_word = f_word;
                 break;
