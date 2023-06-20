@@ -29,16 +29,19 @@ enum dt_enum {ENTRY, EXTERN, DATA, STR};
 enum addressing {IMDT=1, DRCT=3, DRCT_REG=5};
 enum are {A, R, E};
 
-enum TokenType{
+enum token_type{
     TOKEN_LABEL,
     TOKEN_OPCODE,
     TOKEN_DATATYPE,
     TOKEN_REGISTER,
     TOKEN_INEGER,
     TOKEN_VAR,
-    TOKEN_STRING
+    TOKEN_STRING,
+    TOKEN_UNDEFINED = -1
 
 };
+
+enum node_type {NODE_ENTRY, NODE_EXTERN, NODE_FIRST_W, NODE_IMDT_DRCT_W, NODE_REG_W, NODE_DATA_W, NODE_STRING_W};
 
 
 /*Defines a 12 bit machine word - the fisrt word of instruction*/
@@ -83,7 +86,7 @@ typedef struct data_w
 typedef struct machine_w
 {
     char *label;
-    int placeholder;
+    int node_type;
     union word
     {
         first_w *f_word;
