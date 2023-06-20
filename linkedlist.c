@@ -50,18 +50,6 @@ void free_list(LinkedList* list) {
     list->tail = NULL;
 }
 
-void print_last_12_bits(unsigned int num) {
-    int mask = (1 << 12) - 1;  
-    int last12Bits = num & mask;
-    int i;
-    int bit;
-
-    for (i = 11; i >= 0; i--) {
-        bit = (last12Bits >> i) & 1;
-        printf("%d", bit);
-    }
-    printf("\n");
-}
 
 void print_list(LinkedList* lst, int reverse) {
 

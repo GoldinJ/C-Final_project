@@ -3,13 +3,11 @@
 #include "parser.h"
 #include "linkedlist.h"
 
-enum inst_strc {OPCODE, OPRND1, OPRND2};
+const char* opcodes[] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop", NULL};
+const char* registers[] = {"@r0", "@r1", "@r2", "@r3", "@r4", "@r5", "@r6", "@r7", NULL};
+const char* data_types[] = {".entry", ".extern", ".data", ".string", NULL};
 
-char* opcodes[] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop", NULL};
-char* registers[] = {"@r0", "@r1", "@r2", "@r3", "@r4", "@r5", "@r6", "@r7", NULL};
-char* data_types[] = {".entry", ".extern", ".data", ".string", NULL};
-
-int is_in(char *token, char **arr){
+int is_in(char *token, const char **arr){
     int i = 0;
 
     while(arr[i] != NULL){
@@ -132,10 +130,10 @@ int get_token_type(char *token){
     else
         return TOKEN_VAR;
 
-    return -1;
+    return TOKEN_UNDEFINED;
 }
 
-int encode(char*token){
+machine_w* encode(char*token){
     int token_type = get_token_type(token) ;
 
     switch (token_type)
@@ -160,19 +158,20 @@ int encode(char*token){
             break;
     }
 
-    return FALSE;
+    return NULL;
 
 }
 
 machine_w* encode_first_w(char** line){
 
-    /*mov 3, @r3*/
+    /*label: mov 3, @r3*/
     /*inc @r1*/
     /*stop*/
     int i = 0;
     int opcode_index = -1;
     machine_w* m_word = (machine_w*)malloc(sizeof(machine_w));
     first_w* f_word = (first_w*)malloc(sizeof(first_w));
+    m_word->node_type = NODE_FIRST_W;
 
     if (get_token_type(line[0]) == TOKEN_LABEL){
         m_word->label = line[0];
@@ -197,8 +196,11 @@ machine_w* encode_first_w(char** line){
             case SUB:
             case LEA:
 
-                if(line[i] == NULL || line[i] == NULL){
+                if(line[i] == NULL){
                     printf(TOO_FEW_OPERANDS, opcodes[opcode_index]);
+                    free(m_word);
+                    free(f_word);
+                    return NULL;
                 }
 
                 f_word->ARE = A;
@@ -218,7 +220,14 @@ machine_w* encode_first_w(char** line){
                     i++;
                 }
 
-                if(is_num(line[i]) && opcode_index != CMP){
+                if(line[i] == NULL){
+                    printf(TOO_FEW_OPERANDS, opcodes[opcode_index]);
+                    free(m_word);
+                    free(f_word);
+                    return NULL;
+                }
+
+                else if(is_num(line[i]) && opcode_index != CMP){
                     printf(INVALID_OPERAND_TYPE, opcodes[opcode_index], i);
                 }
                 else if(is_num(line[i]) && opcode_index == CMP)
@@ -247,14 +256,14 @@ machine_w* encode_first_w(char** line){
                 f_word->ARE = A;
                 f_word->opcode = opcode_index;
 
-                if(line[OPRND1] == NULL){
+                if(line[i] == NULL){
                     printf(TOO_FEW_OPERANDS, opcodes[opcode_index]);
                 }
 
-                else if(is_num(line[OPRND1])){
+                else if(is_num(line[i])){
                     f_word->dest_operand = IMDT;
                 }
-                else if (get_reg_index(line[OPRND1]) != -1)
+                else if (get_reg_index(line[i]) != -1)
                 {
                     f_word->dest_operand= DRCT_REG;
                 }
@@ -278,25 +287,33 @@ machine_w* encode_first_w(char** line){
                 break;
             
             default:
-                printf("Error: Undefined opcode - '%s'\n", line[OPCODE]);
+                printf("Error: Undefined opcode - '%s'\n", line[i]);
                 break;
         }
     
     return m_word;
 }
 
-data_w* encode_data_w(char *data, int data_type){
+data_w* encode_data_w(char *data){
 
-    data_w *word = (data_w*)malloc(sizeof(data_w));
-    int res;
+    machine_w* m_word = (machine_w*)malloc(sizeof(machine_w));
+    data_w *d_word = (data_w*)malloc(sizeof(data_w));
+    int data_type = get_token_type(data);
 
-    if(data_type == DATA){
-        res = to_int(data);
+    if (data_type == TOKEN_UNDEFINED)
+    {
+        printf("Error in encode_data_w");
+        free(m_word);
+        free(d_word);
+        return NULL;
+    }
+    
 
-        if (IN_RANGE(res, MIN_INT_VALUE, MAX_INT_VALUE))
-            word->data = res;
-        else
-            printf("Value ERROR\n");
+    if(data_type == TOKEN_INEGER){
+
+    }
+    else if (data_type == TOKEN_STRING){
+
     }
     
     return NULL;

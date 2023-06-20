@@ -2,10 +2,7 @@
 #define LINKED_LIST_H
 
 #include "constants.h"
-#define REVERSE 1
-#define FORWARD 0
-
-enum node_type {NODE_ENTRY, NODE_EXTERN, NODE_FIRST_W, NODE_IMDT_DRCT_W, NODE_REG_W, NODE_DATA_W};
+#include "utilities.h"
 
 typedef struct Node {
     char ** instruction;
