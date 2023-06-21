@@ -108,6 +108,8 @@ int validate_syntax(char* line) {
     return TRUE;
 }
 
+
+
 char** parse_command(char* line){
     
     int i=0;
@@ -127,17 +129,49 @@ char** parse_command(char* line){
     return command;
 }
 
+/*note to self*/
+/*##########################*/
+/*OPTION1: create an array that holds the macro names and bodys*/
+/*#############################*/
+/*OPTION2: create a linked list that holds 2 variables: 1 macro name ,2 macro body*/
+
+/* this function finds all the macro names and stores them the macro_name array*/
+
+char** FindMacroName(char** command) {
+
+    int i=0 ;
+    int count = 0;
+    char** macro_name=NULL;
+
+    while(command[i]!=NULL) {
+        if (strcmp(command[i], "mcro") == 0) {
+            if (command[i + 1]!=NULL) {
+                macro_name =realloc(macro_name,(count+1)*sizeof(char*));
+                macro_name[count]=strdup(command[i+1]);
+                count++;
+                }
+            }
+        i++;
+        }
+
+
+    macro_name = realloc(macro_name,(count+1)*sizeof(char*));
+    macro_name[count]=NULL;
+
+    free_command(command);
+    return macro_name;
+    }
+
 void free_command(char** command) {
     int i;
     for (i = 0; command[i] != NULL; i++) {
-        free(command[i]); /*free each individual string*/ 
+        free(command[i]); /*free each individual string*/
     }
-    free(command); /*free the array itself*/ 
+    free(command); /*free the array itself*/
 }
 
-/* here will be the function that finds the name of the mcro */
 
-/* char* macro_finder(char** command){} */
+/*void char* macro_finder(char** command){} */
 
 /* we need another function that holds different macro bodies and identifies which body belongs to which macro*/
 
