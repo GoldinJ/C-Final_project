@@ -135,6 +135,13 @@ void free_command(char** command) {
     free(command); /*free the array itself*/ 
 }
 
+/* here will be the function that finds the name of the mcro */
+
+/* char* macro_finder(char** command){} */
+
+/* we need another function that holds different macro bodies and identifies which body belongs to which macro*/
+
+
 /* int main (){
 
     char *line;
