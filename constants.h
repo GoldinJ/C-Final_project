@@ -1,6 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -158,6 +159,14 @@ typedef struct instruction_w
     
 
 }instructtion_w;
+
+/*struct to hold the name , body , number of lines*/
+typedef struct {
+    char** macro_names;
+    char*** macro_bodies;
+    int* macro_body_counts;
+} MacroData;
+
 
 
 #endif
