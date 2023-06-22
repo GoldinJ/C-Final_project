@@ -133,35 +133,6 @@ int get_token_type(char *token){
     return TOKEN_UNDEFINED;
 }
 
-machine_w* encode(char*token){
-    int token_type = get_token_type(token) ;
-
-    switch (token_type)
-    {
-        case NODE_ENTRY:
-        case NODE_EXTERN:
-            break;
-
-        case NODE_FIRST_W:
-            break;
-
-        case NODE_IMDT_DRCT_W:
-            break;
-
-        case NODE_REG_W:
-            break;
-
-        case NODE_DATA_W:
-            break;
-        
-        default:
-            break;
-    }
-
-    return NULL;
-
-}
-
 machine_w* encode_first_w(char** line){
 
     /*label: mov 3, @r3*/
@@ -182,6 +153,7 @@ machine_w* encode_first_w(char** line){
         opcode_index = get_opcode_index(line[i]);
         i++;
     }
+    
     else{
         free(m_word);
         free(f_word);
@@ -294,13 +266,15 @@ machine_w* encode_first_w(char** line){
     return m_word;
 }
 
-data_w* encode_data_w(char *data){
+machine_w* encode_data_w(char *token, int token_type){
 
     machine_w* m_word = (machine_w*)malloc(sizeof(machine_w));
     data_w *d_word = (data_w*)malloc(sizeof(data_w));
-    int data_type = get_token_type(data);
+    int num;
+    int i;
+    int token_len;
 
-    if (data_type == TOKEN_UNDEFINED)
+    if (token_type == TOKEN_UNDEFINED)
     {
         printf("Error in encode_data_w");
         free(m_word);
@@ -309,14 +283,67 @@ data_w* encode_data_w(char *data){
     }
     
 
-    if(data_type == TOKEN_INEGER){
+    if(token_type == TOKEN_INEGER){
+        num = to_int(token);
+
+        if (IN_RANGE(num, MIN_INT_VALUE, MAX_INT_VALUE)){
+            d_word->data = num;
+            m_word->node_type = NODE_DATA_W;
+            m_word->word.d_word = d_word;
+            return m_word;
+        }
+        else{
+            printf("Error: Token - '%s' is out of range\n", token);
+            free(m_word);
+            free(d_word);
+            return NULL;
+        }
 
     }
-    else if (data_type == TOKEN_STRING){
+    else if (token_type == TOKEN_STRING){
+        token_len = strlen(token);
+
+        for(i=1; token[i] != '"'; i++){
+            printf("%c | ", token[i]);
+            
+        }
+        printf("\n");
+
+        return NULL;
 
     }
     
     return NULL;
+}
+
+machine_w* encode(char*token){
+    int token_type = get_token_type(token) ;
+
+    switch (token_type)
+    {
+        case TOKEN_LABEL:
+        case TOKEN_OPCODE:
+        case TOKEN_DATATYPE:
+            return NULL;
+            break;
+
+        case TOKEN_REGISTER:
+
+
+        case TOKEN_INEGER:
+            return encode_data_w(token, token_type);
+                break;
+                
+        case TOKEN_STRING:
+            break;
+            
+
+        default:
+            break;
+    }
+
+    return NULL;
+
 }
 
 int main (){
@@ -325,7 +352,7 @@ int main (){
     char *line_copy;
     char **instruction = NULL;
     int line_len;
-    /* int i = 0; */
+    int i = 0;
 
     LinkedList list;
     list.head = NULL;
@@ -343,19 +370,12 @@ int main (){
         }
 
         instruction = parse_command(line_copy);
-        /*i = 0;
-        printf("%s ------ ", line);
-        while (instruction[i] != NULL)
-        {
-            printf("%d | ", get_token_type(instruction[i]));
-            i++;
-        }
-        printf("\n++++++++++++++++++++++++++++++++\n"); */
-
-        add_node(&list, instruction, encode_first_w(instruction));
-        /* while(instruction[i] != NULL){
-            add_node(&list, encode(instruction[i]));
-        } */
+        // i = 0;
+        // add_node(&list, instruction, encode_first_w(instruction));
+        // while(instruction[i] != NULL){
+        //     add_node(&list, NULL, encode(instruction[i]));
+        //     i++;
+        // }
 
         free(line_copy);
         free(line);
