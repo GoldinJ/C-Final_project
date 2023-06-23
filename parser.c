@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "parser.h"
 #include "errors.h"
 
 void strip(char *str) {
@@ -108,8 +109,6 @@ int validate_syntax(char* line) {
     return TRUE;
 }
 
-
-
 char** parse_command(char* line){
     
     int i=0;
@@ -137,6 +136,8 @@ MacroData FindMacroData(char** command) {
     char** macro_name=NULL;
     char*** macro_body=NULL;
     int* macro_body_counts=NULL;
+    char** current_macro_body = NULL;
+    MacroData macro_data;
 
     while(command[i]!=NULL) {
         if (strcmp(command[i], "mcro") == 0) {
@@ -146,7 +147,7 @@ MacroData FindMacroData(char** command) {
                 /*allocate memory for the macro names*/
                 macro_name=realloc(macro_name,(count+1) * sizeof (char*));
                 if(macro_name==NULL) {
-                    fprintf(stderr,"\"macro_name: Memory allocation failed\"\n")
+                    fprintf(stderr,"\"macro_name: Memory allocation failed\"\n");
                     exit(1);
                 }
                 macro_name[count]= strdup(command[i-1]);
@@ -154,18 +155,17 @@ MacroData FindMacroData(char** command) {
                 /*allocate memory for the macro bodies*/
                 macro_body_counts = realloc(macro_body_counts,(count+1)*sizeof(int));
                 if(macro_body_counts==NULL) {
-                    fprintf(stderr,"\"macro_body_counts: Memory allocation failed\"\n")
+                    fprintf(stderr,"\"macro_body_counts: Memory allocation failed\"\n");
                     exit(1);
                 }
                 macro_body_counts[count]=0;
 
                 /*processing macro_body */
-                char** current_macro_body = NULL;
                 while(command[i]!=NULL && strcmp(command[i],"endmcro")!=0){
                     /* Allocate memory for current_macro_body*/
                     current_macro_body = realloc(current_macro_body, (macro_body_counts[count] + 1) * sizeof(char*));
                     if(current_macro_body==NULL) {
-                        fprintf(stderr,"\"current_macro_body: Memory allocation failed\"\n")
+                        fprintf(stderr,"\"current_macro_body: Memory allocation failed\"\n");
                         exit(1);
                     }
                     current_macro_body[macro_body_counts[count]]= strdup(command[i]);
@@ -175,7 +175,7 @@ MacroData FindMacroData(char** command) {
                 /*allocate memory for macro body*/
                 macro_body= realloc(macro_body,(count+1)*sizeof (char**));
                 if(macro_body==NULL) {
-                    fprintf(stderr,"\"macro_body: Memory allocation failed\"\n")
+                    fprintf(stderr,"\"macro_body: Memory allocation failed\"\n");
                     exit(1);
                 }
                 macro_body[count]=current_macro_body;
@@ -188,13 +188,12 @@ MacroData FindMacroData(char** command) {
 
     macro_name = realloc(macro_name,(count+1)*sizeof(char*));
     if(macro_name==NULL) {
-        fprintf(stderr,"\"macro_name: Memory allocation failed\"\n")
+        fprintf(stderr,"\"macro_name: Memory allocation failed\"\n");
         exit(1);
     }
     macro_name[count]=NULL;
 
     /*Create MacroData structure to hold the name , body , count the lines*/
-    MacroData macro_data;
     macro_data.macro_names = macro_name;
     macro_data.macro_bodies = macro_body;
     macro_data.macro_body_counts = macro_body_counts;
@@ -204,22 +203,21 @@ MacroData FindMacroData(char** command) {
     return macro_data;
     }
 
-
-
 void FreeMacroData(MacroData macroData) {
-    // Free macro names
+    /* Free macro names */
+    int i, j;
     if (macroData.macro_names != NULL) {
-        for (int i = 0; macroData.macro_names[i] != NULL; i++) {
+        for (i = 0; macroData.macro_names[i] != NULL; i++) {
             free(macroData.macro_names[i]);
         }
         free(macroData.macro_names);
     }
 
-    // Free macro bodies
+    /* Free macro bodies */
     if (macroData.macro_bodies != NULL) {
-        for (int i = 0; macroData.macro_bodies[i] != NULL; i++) {
+        for (i = 0; macroData.macro_bodies[i] != NULL; i++) {
             char** macroBody = macroData.macro_bodies[i];
-            for (int j = 0; macroBody[j] != NULL; j++) {
+            for (j = 0; macroBody[j] != NULL; j++) {
                 free(macroBody[j]);
             }
             free(macroBody);
@@ -227,7 +225,7 @@ void FreeMacroData(MacroData macroData) {
         free(macroData.macro_bodies);
     }
 
-    // Free macro body counts
+    /* Free macro body counts */
     free(macroData.macro_body_counts);
 }
 

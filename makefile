@@ -12,7 +12,7 @@ encoder.o: encoder.c constants.h errors.h linkedlist.h parser.h utilities.h
 parser: parser.o linkedlist.o
 	$(CC) $(CFLAGS) -o parser parser.o linkedlist.o
 
-parser.o: parser.c constants.h linkedlist.h errors.h
+parser.o: parser.c constants.h linkedlist.h errors.h parser.h
 	$(CC) $(CFLAGS) -c parser.c 
 
 linkedlist.o: linkedlist.c utilities.o linkedlist.h utilities.h
