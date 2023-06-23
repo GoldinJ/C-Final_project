@@ -87,6 +87,7 @@ typedef struct machine_w
 {
     char *label;
     int node_type;
+    int placeholder;
     union word
     {
         first_w *f_word;

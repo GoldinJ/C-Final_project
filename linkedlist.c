@@ -40,9 +40,34 @@ void free_list(LinkedList* list) {
             }
             free(temp->instruction);
         }
-        /* free(temp->word->label); */ /*IF LABEL IS NULL*/
-        free(temp->word);
-        
+
+        if (temp->word != NULL) {
+            if (temp->word->label != NULL) {
+                free(temp->word->label);
+            }
+
+            switch (temp->word->node_type)
+            {
+            case NODE_FIRST_W:
+                free(temp->word->word.f_word); 
+                break;
+            case NODE_IMDT_DRCT_W:
+                free(temp->word->word.im_drct_w); 
+                break;
+            case NODE_REG_W:
+                free(temp->word->word.r_word); 
+                break;
+            case NODE_DATA_W:
+                free(temp->word->word.d_word); 
+                break;
+
+            default:
+                break;
+            }
+            
+            free(temp->word);
+        }
+
         /* Free the node */
         free(temp);
     }
@@ -62,6 +87,7 @@ void print_list(LinkedList* lst, int reverse) {
         temp = current;
         
         if(temp->instruction != NULL){
+            printf("---------------\n");
         /* Print the instructions */
         for (i = 0; temp->instruction[i] != NULL; i++) {
             printf("%s", temp->instruction[i]);
@@ -74,7 +100,7 @@ void print_list(LinkedList* lst, int reverse) {
         printf("\n");
         }
         print_last_12_bits(*((unsigned int *)(temp->word->word.f_word)));
-        printf("=================================\n");
+        /* printf("=================================\n"); */
         
         current = current->next;
     }
