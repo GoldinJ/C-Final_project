@@ -107,9 +107,20 @@ int to_int(char *data){
     return sign * result;
 }
 
-int get_token_type(char *token){
+int sizeof_instruction(char **line){
+    int i = 0;
+    while (line[i] != NULL)
+    {   
+        i++;
+    }
+    
+    return i;
+}
 
-    if(IS_LABEL(token))
+int get_token_type(char *token){
+    int i;
+
+    if(IS_LABEL(token)) /*todo - validate label syntax*/
         return TOKEN_LABEL;
 
     else if(is_in(token, opcodes))
@@ -118,9 +129,40 @@ int get_token_type(char *token){
     else if(is_in(token, registers))
         return TOKEN_REGISTER;
 
-    else if(is_in(token, data_types))
-        return TOKEN_DATATYPE;
+    else if(is_in(token, data_types)){
+        i = 0;
+        while (data_types[i] != NULL)
+        {
+            if(strcmp(token, data_types[i]) == 0)
+                break;
 
+            i++;
+        }
+
+        switch (i)
+            {
+            case ENTRY:
+                return TOKEN_ENTRY;
+                break;
+
+            case EXTERN:
+                return TOKEN_EXTERN;
+                break;
+
+            case DATA:
+                return TOKEN_DATA;
+                break;
+
+            case STR:
+                return TOKEN_STRING;
+                break;
+            
+            default:
+                break;
+            }
+        
+    }
+        
     else if(is_num(token))
         return TOKEN_INEGER;
 
@@ -131,6 +173,17 @@ int get_token_type(char *token){
         return TOKEN_VAR;
 
     return TOKEN_UNDEFINED;
+}
+
+void allocate_word_queue(machine_w*** word, int size){
+    /*size = first_w + num of operands* + NULL terminator*/
+
+    int i;
+    *word = (machine_w**)realloc(*word, size*(sizeof(machine_w*)));
+    for(i = 1; i<size-1; i++)
+        (*word)[i] =(machine_w*)malloc(sizeof(machine_w));
+
+    (*word)[i] = NULL;
 }
 
 machine_w* encode_reg_w(char *reg1, char *reg2){
@@ -194,42 +247,19 @@ machine_w* encode_imdt_drct_w(char* operand, int placeholder){
 
 }
 
-machine_w** encode_first_w(char** line){
+machine_w** encode_first_w(char** line, char* label, int opcode_index, int start_index){
 
-   
-    int i = 0;
-    int tmp_i;
-    int opcode_index = -1;
-    int arr_size = 4;
-    machine_w** m_word = (machine_w**)malloc(arr_size*sizeof(machine_w*));
+    int i = start_index;
+    int initial_queue_size = 2;
+    machine_w** word_queue = (machine_w**)malloc(sizeof(machine_w*));
     first_w* f_word = (first_w*)malloc(sizeof(first_w));
 
-    for (tmp_i = 0; tmp_i<arr_size; tmp_i++)
-        m_word[tmp_i] =(machine_w*)malloc(sizeof(machine_w));
+    word_queue[0] = (machine_w*)malloc(sizeof(machine_w));
+    word_queue[0]->label = label;
+    word_queue[0]->node_type = NODE_FIRST_W;
+    word_queue[0]->word.f_word = f_word;
+    f_word->ARE = A;
 
-
-    
-    m_word[0]->node_type = NODE_FIRST_W;
-
-    if (get_token_type(line[0]) == TOKEN_LABEL){
-        m_word[0]->label = line[0];
-        i++;
-    }
-
-    if (get_token_type(line[i]) == TOKEN_OPCODE){
-        opcode_index = get_opcode_index(line[i]);
-        i++;
-    }
-    
-    else{
-        for (tmp_i = 0; tmp_i < arr_size; tmp_i++)
-            free(m_word[tmp_i]);
-        free(m_word);
-        free(m_word);
-        free(f_word);
-        return NULL;
-    }
-    
     switch (opcode_index)
         {
             case CMP:
@@ -240,63 +270,72 @@ machine_w** encode_first_w(char** line){
 
                 if(line[i] == NULL || line[i+1] ==NULL){
                     printf(TOO_FEW_OPERANDS, opcodes[opcode_index]);
-                    free(m_word);
                     free(f_word);
                     return NULL;
                 }
 
-                f_word->ARE = A;
+                allocate_word_queue(&word_queue, initial_queue_size+2);
+                
                 f_word->opcode = opcode_index;
-
+                
+                /*First operand is an integer*/
                 if(is_num(line[i])){
                     f_word->src_operand = IMDT;
-                    m_word[1] = encode_imdt_drct_w(line[i], FALSE);
+                    word_queue[1] = encode_imdt_drct_w(line[i], FALSE);
                     i++;
                 }
+
+                /*Both operands are registers*/
                 else if(get_reg_index(line[i]) != TOKEN_UNDEFINED && get_reg_index(line[i+1]) != TOKEN_UNDEFINED){
                     f_word ->src_operand = DRCT_REG;
                     f_word ->dest_operand = DRCT_REG;
-                    m_word[0]->word.f_word = f_word;
-                    m_word[1] = encode_reg_w(line[i], line[i+1]);
-                    free(m_word[2]);
-                    free(m_word[3]);
-                    m_word[2] = NULL;
-                    m_word[3] = NULL;
+                    word_queue[0]->word.f_word = f_word;
+                    word_queue[1] = encode_reg_w(line[i], line[i+1]);
+                    free(word_queue[2]);
+                    free(word_queue[3]);
+                    word_queue[2] = NULL;
                     break;
                 }
+
+                /*First operand is a register*/
                 else if (get_reg_index(line[i]) != TOKEN_UNDEFINED)
                 {
                     f_word->src_operand = DRCT_REG;
-                    m_word[1] = encode_reg_w(line[i], NULL);
+                    word_queue[1] = encode_reg_w(line[i], NULL);
                     i++;
                 }
                 else{
                     f_word->src_operand = DRCT;
-                    m_word[1] = encode_imdt_drct_w(line[i], TRUE);
+                    word_queue[1] = encode_imdt_drct_w(line[i], TRUE);
                     i++;
                 }
-
-               
+            
+               /*The second operand is an integer - invalid for any opcode except CMP*/
                 if(is_num(line[i]) && opcode_index != CMP){
                     printf(INVALID_OPERAND_TYPE, opcodes[opcode_index], i);
+                    free(word_queue[0]);
+                    free(word_queue[1]);
+                    free(word_queue[2]);
+                    free(word_queue[3]);
+                    return NULL;
                 }
+
                 else if(is_num(line[i]) && opcode_index == CMP){
                     f_word->dest_operand = IMDT;
-                    m_word[2] = encode_imdt_drct_w(line[i], FALSE);
+                    word_queue[2] = encode_imdt_drct_w(line[i], FALSE);
                 }
+                /*Second operand is a register*/
                 else if (get_reg_index(line[i]) != TOKEN_UNDEFINED)
                 {
                     f_word->dest_operand = DRCT_REG;
-                    m_word[2] = encode_imdt_drct_w(line[i], FALSE);
+                    word_queue[2] = encode_reg_w(NULL, line[i]);
                 }
-                else
+                
+                else{
                     f_word->dest_operand = DRCT;
-                    m_word[2] = encode_imdt_drct_w(line[i], TRUE);
+                    word_queue[2] = encode_imdt_drct_w(line[i], TRUE);
+                }
                
-                m_word[0]->word.f_word = f_word;
-                free(m_word[3]);
-                m_word[3] = NULL;
-
                 break;
 
             case NOT:
@@ -308,104 +347,154 @@ machine_w** encode_first_w(char** line){
             case RED:
             case PRN:
             case JSR:
-                f_word->ARE = A;
+
+                allocate_word_queue(&word_queue, initial_queue_size+1);
                 f_word->opcode = opcode_index;
 
                 if(line[i] == NULL){
                     printf(TOO_FEW_OPERANDS, opcodes[opcode_index]);
+                    return NULL;
                 }
 
                 else if(is_num(line[i])){
                     f_word->dest_operand = IMDT;
-                    m_word[1] = encode_imdt_drct_w(line[i], FALSE);
+                    word_queue[1] = encode_imdt_drct_w(line[i], FALSE);
                 }
                 else if (get_reg_index(line[i]) != TOKEN_UNDEFINED)
                 {
                     f_word->dest_operand= DRCT_REG;
-                    m_word[1] = encode_reg_w(line[i], NULL);
+                    word_queue[1] = encode_reg_w(line[i], NULL);
                 }
                 else
                     f_word->dest_operand = DRCT;
-                    m_word[1] = encode_imdt_drct_w(line[i], TRUE);
+                    word_queue[1] = encode_imdt_drct_w(line[i], TRUE);
                 
-                m_word[0]->word.f_word = f_word;
-                free(m_word[2]);
-                free(m_word[3]);
-                m_word[2] = NULL;
-                m_word[3] = NULL;
                 break;
 
             case RTS:
             case STOP:
                 if(line[i] != NULL){
                     printf(TOO_MANY_OPERANDS, opcodes[opcode_index]);
+                    return NULL;
                     break;
                 }
 
-
-                f_word->ARE = A;
                 f_word->src_operand = 0;
                 f_word->opcode = opcode_index;
                 f_word->dest_operand = 0;
-                m_word[0]->word.f_word = f_word;
-                free(m_word[1]);
-                free(m_word[2]);
-                free(m_word[3]);
-                m_word[1] = NULL;
-                m_word[2] = NULL;
-                m_word[3] = NULL;
                 break;
             
             default:
                 printf("Error: Undefined opcode - '%s'\n", line[i]);
+                free(word_queue);
+                free(f_word);
+                return NULL;
                 break;
         }
 
-    return m_word;
+    return word_queue;
 }
 
-machine_w* encode_data_w(char *token, int token_type){
-
-    machine_w* m_word = (machine_w*)malloc(sizeof(machine_w));
-    data_w *d_word = (data_w*)malloc(sizeof(data_w));
+machine_w** encode_data_w(char **line, char *label, int token_type, int start_index){
+    int j;
+    int queue_size;
+    char *token;
     int num;
-
-    if (token_type == TOKEN_UNDEFINED)
-    {
-        printf("Error in encode_data_w");
-        free(m_word);
-        free(d_word);
-        return NULL;
-    }
+    machine_w** word_queue = (machine_w**)malloc(sizeof(machine_w*));
+    data_w *d_word;
     
+    switch (token_type)
+    {
 
-    if(token_type == TOKEN_INEGER){
-        num = to_int(token);
+    case TOKEN_DATA:
+        queue_size = sizeof_instruction(line) - start_index + 1;
+        allocate_word_queue(&word_queue, queue_size);
+        word_queue[0] = (machine_w*)malloc(sizeof(machine_w));
+        for(j=0; j<queue_size-1; j++, start_index++){
+            token = line[start_index];
+            d_word = (data_w*)malloc(sizeof(d_word));
 
-        if (IN_RANGE(num, MIN_INT_VALUE, MAX_INT_VALUE)){
-            d_word->data = num;
-            m_word->node_type = NODE_DATA_W;
-            m_word->word.d_word = d_word;
-            return m_word;
+            if(is_num(token)){
+                num = to_int(token);
+                d_word->data = num;
+                word_queue[j]->word.d_word = d_word;
+
+                if(j == 0)
+                    word_queue[j]->label = label;
+            }
+
         }
-        else{
-            printf("Error: Token - '%s' is out of range\n", token);
-            free(m_word);
-            free(d_word);
-            return NULL;
+
+        return word_queue;
+
+    case TOKEN_STRING:
+        token = line[start_index];
+        queue_size = sizeof(token);
+        allocate_word_queue(&word_queue, queue_size);
+        word_queue[0] = (machine_w*)malloc(sizeof(machine_w));
+
+        for(j=1; j<queue_size-1; j++){
+            d_word = (data_w*)malloc(sizeof(d_word));
+            d_word->data = token[j];
+
+            if(j==1){
+                word_queue[0]->label = label;
+                d_word->data = token[j];
+                word_queue[0]->word.d_word = d_word;
+            }
+    
+            else{
+                d_word->data = token[j];
+                word_queue[j-1]->word.d_word = d_word;
+            }
+
         }
 
-    }
-    else if (token_type == TOKEN_STRING){
-        
-        return NULL;
+        d_word = (data_w*)malloc(sizeof(d_word));
+        d_word->data = 0;
+        word_queue[j-1]->word.d_word = d_word;
 
+        return word_queue;
+    
+    default:
+        break;
     }
     
     return NULL;
 }
 
-machine_w* encode(LinkedList *list, char** instruction){
+machine_w** encode(char** instruction){
+    int i;
+    char *token;
+    int label_size;
+    char *label = NULL;
+    int token_type;
+
+    for(i = 0; i<2; i++){
+        token = instruction[i];
+        token_type = get_token_type(token);
+
+        switch (token_type)
+        {
+        case TOKEN_LABEL:
+            label_size = strlen(instruction[0]);
+            label = malloc((label_size-1)*sizeof(char*));
+            strncpy(label, instruction[0], label_size-1);
+            label[label_size-1] = '\0';
+            continue;
+
+        case TOKEN_OPCODE:
+            return encode_first_w(instruction, label, get_opcode_index(token), i+1);
+
+        case TOKEN_DATA:
+        case TOKEN_STRING:
+            return encode_data_w(instruction, label, token_type, i+1);
+        
+        default:
+            break;
+        }
+
+    }
     
 
     return NULL;
@@ -418,9 +507,9 @@ int main (){
     char *line_copy;
     char **instruction = NULL;
     int line_len;
-    int i = 0;
+    int i;
     machine_w* tmp;
-    machine_w** words;
+    machine_w** word_queue;
 
     LinkedList list;
     list.head = NULL;
@@ -438,10 +527,10 @@ int main (){
         }
 
         instruction = parse_command(line_copy);
-        words = encode_first_w(instruction);
+        word_queue = encode(instruction);
         i = 0;
-        while(words[i] != NULL){
-            tmp = words[i];
+        while(word_queue[i] != NULL){
+            tmp = word_queue[i];
             if (i == 0)
                 add_node(&list, instruction, tmp);
             else
@@ -449,7 +538,7 @@ int main (){
             i++;
         }
         
-
+        free(word_queue);
         free(line_copy);
         free(line);
     }
