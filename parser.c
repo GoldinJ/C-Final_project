@@ -129,6 +129,7 @@ char** parse_command(char* line){
 }
 
 /*Function for finding the name of the macro and storing it an array and saving the macro body into a 2D array corresponding to the name */
+
 MacroData FindMacroData(char** command) {
 
     int i=0 ;
@@ -150,7 +151,11 @@ MacroData FindMacroData(char** command) {
                     fprintf(stderr,"\"macro_name: Memory allocation failed\"\n");
                     exit(1);
                 }
-                macro_name[count]= strdup(command[i-1]);
+                macro_name[count]= (char*)malloc(strlen(command[i - 1]) + 1);
+                if (macro_name[count] == NULL) {
+                    fprintf(stderr, "\"macro_name: Memory allocation failed\"\n");
+                    exit(1);
+                }
 
                 /*allocate memory for the macro bodies*/
                 macro_body_counts = realloc(macro_body_counts,(count+1)*sizeof(int));
@@ -168,7 +173,12 @@ MacroData FindMacroData(char** command) {
                         fprintf(stderr,"\"current_macro_body: Memory allocation failed\"\n");
                         exit(1);
                     }
-                    current_macro_body[macro_body_counts[count]]= strdup(command[i]);
+                    current_macro_body[macro_body_counts[count]]= (char*)malloc(strlen(command[i]) + 1);
+                    if (current_macro_body[macro_body_counts[count]] == NULL) {
+                        fprintf(stderr, "\"current_macro_body: Memory allocation failed\"\n");
+                        exit(1);
+                    }
+                    strcpy(current_macro_body[macro_body_counts[count]], command[i]);
                     i++;
                     macro_body_counts[count]++;
                 }
@@ -202,6 +212,9 @@ MacroData FindMacroData(char** command) {
     free_command(command);
     return macro_data;
     }
+
+
+/* we need another function that holds different macro bodies and identifies which body belongs to which macro*/
 
 void FreeMacroData(MacroData macroData) {
     /* Free macro names */
@@ -237,10 +250,9 @@ void free_command(char** command) {
     free(command);
 }
 
-/* we need another function that holds different macro bodies and identifies which body belongs to which macro*/
 
 
-/* int main (){
+/*int main (){
 
     char *line;
     char *line_copy;
@@ -284,4 +296,4 @@ void free_command(char** command) {
 
 
     return 0;
-} */
+*/
