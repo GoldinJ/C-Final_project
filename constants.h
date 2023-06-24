@@ -33,7 +33,9 @@ enum are {A, R, E};
 enum token_type{
     TOKEN_LABEL,
     TOKEN_OPCODE,
-    TOKEN_DATATYPE,
+    TOKEN_ENTRY,
+    TOKEN_EXTERN,
+    TOKEN_DATA,
     TOKEN_REGISTER,
     TOKEN_INEGER,
     TOKEN_VAR,
