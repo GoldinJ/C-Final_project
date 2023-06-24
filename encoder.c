@@ -120,8 +120,26 @@ int sizeof_instruction(char **line){
 int get_token_type(char *token){
     int i;
 
-    if(IS_LABEL(token)) /*todo - validate label syntax*/
+    if(END_WITH(token, ':')){ /*Label syntax validation*/
+        if (strlen(token) > 31){
+            fprintf(stderr, INVALID_LABEL_LENGTH, token);
+            return TOKEN_UNDEFINED;
+        }
+
+        if(!IS_CHAR(token[0])){
+            printf("Error:\n");
+            return TOKEN_UNDEFINED;
+        }
+        
+        for(i=1; i<strlen(token) - 1; i++){
+            if(!IS_CHAR(token[i]) && !IN_RANGE(token[i], '0', '9')){
+                fprintf(stderr, INVALID_LABEL_SYNTAX, token[i]);
+                return TOKEN_UNDEFINED;
+            }
+        }
+            
         return TOKEN_LABEL;
+    }
 
     else if(is_in(token, opcodes))
         return TOKEN_OPCODE;
@@ -490,8 +508,8 @@ machine_w** encode(char** instruction){
         case TOKEN_STRING:
             return encode_data_w(instruction, label, token_type, i+1);
         
-        default:
-            break;
+        case TOKEN_UNDEFINED:
+            return NULL;
         }
 
     }
@@ -528,6 +546,13 @@ int main (){
 
         instruction = parse_command(line_copy);
         word_queue = encode(instruction);
+        
+        if (word_queue == NULL){
+            free(line_copy);
+            free(line);
+            continue;
+        }
+
         i = 0;
         while(word_queue[i] != NULL){
             tmp = word_queue[i];
