@@ -31,6 +31,7 @@ enum addressing {IMDT=1, DRCT=3, DRCT_REG=5};
 enum are {A, R, E};
 
 enum token_type{
+    TOKEN_LABEL_DEFENITION,
     TOKEN_LABEL,
     TOKEN_OPCODE,
     TOKEN_ENTRY,

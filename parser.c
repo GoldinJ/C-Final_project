@@ -213,7 +213,6 @@ MacroData FindMacroData(char** command) {
     return macro_data;
     }
 
-
 /* we need another function that holds different macro bodies and identifies which body belongs to which macro*/
 
 void FreeMacroData(MacroData macroData) {

@@ -24,5 +24,8 @@ utilities.o: utilities.c
 debug: CFLAGS += -g
 debug: clean encoder parser
 
+leak-check:
+	valgrind --leak-check=full --track-origins=yes --verbose ./encoder < input.txt 
+
 clean:
 	rm -f encoder parser debug *.o

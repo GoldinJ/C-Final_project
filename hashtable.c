@@ -1,125 +1,196 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#define CAPACITY 50000 /*Size of the HashTable.*/ 
+#define TABLE_SIZE 100
+#define MAX_ARRAY_SIZE 100
 
-unsigned long hash_function(char* str)
-{
-    unsigned long i = 0;
-    int j = 0;
-
-    for (j = 0; str[j]; j++)
-        i += str[j];
-
-    return i % CAPACITY;
-}
-
-typedef struct Ht_item
-{
+typedef struct Entry {
     char* key;
-    char* value;
-} Ht_item;
+    void* value;
+    struct Entry* next;
+} Entry;
 
-/* Defines the HashTable. */
-typedef struct HashTable
-{
-    /* Contains an array of pointers to items. */
-    Ht_item** items;
-    int size;
-    int count;
+typedef struct {
+    Entry** entries;
 } HashTable;
 
-Ht_item* create_item(char* key, char* value)
-{
-    /* Creates a pointer to a new HashTable item. */
-    Ht_item* item = (Ht_item*) malloc(sizeof(Ht_item));
-    item->key = (char*) malloc(strlen(key) + 1);
-    item->value = (char*) malloc(strlen(value) + 1);
-    strcpy(item->key, key);
-    strcpy(item->value, value);
-    return item;
+unsigned int hash(const char* key) {
+    unsigned int hash = 5381;
+    int c;
+
+    while ((c = *key++)) {
+        hash = ((hash << 5) + hash) + c;
+    }
+
+    return hash;
 }
 
-HashTable* create_table(int size)
-{
-    /* Creates a new HashTable. */
-    int i;
-    HashTable* table = (HashTable*) malloc(sizeof(HashTable));
-    table->size = size;
-    table->count = 0;
-    table->items = (Ht_item**) calloc(table->size, sizeof(Ht_item*));
+/* // Duplicate a string*/
+char* duplicateString(const char* source) {
+    size_t length = strlen(source);
+    char* destination = (char*)malloc(length + 1);
+    if (destination != NULL) {
+        strcpy(destination, source);
+    }
+    return destination;
+}
 
-    for (i = 0; i < table->size; i++)
-        table->items[i] = NULL;
+Entry* createEntry(const char* key, void* value) {
+    Entry* entry = (Entry*)malloc(sizeof(Entry));
+    entry->key = duplicateString(key);
+    entry->value = value;
+    entry->next = NULL;
+    return entry;
+}
 
+HashTable* createHashTable() {
+    HashTable* table = (HashTable*)malloc(sizeof(HashTable));
+    table->entries = (Entry**)calloc(TABLE_SIZE, sizeof(Entry*));
     return table;
 }
 
-void free_item(Ht_item* item)
-{
-    /* Frees an item. */
-    free(item->key);
-    free(item->value);
-    free(item);
-}
+void insert(HashTable* table, const char* key, void* value) {
+    unsigned int index = hash(key) % TABLE_SIZE;
+    Entry* newEntry = NULL;
 
-void free_table(HashTable* table)
-{
-    /* Frees the table. */
-    int i;
-    for (i = 0; i < table->size; i++)
-    {
-        Ht_item* item = table->items[i];
-
-        if (item != NULL)
-            free_item(item);
+    Entry* entry = table->entries[index];
+    Entry* prevEntry = NULL;
+    while (entry != NULL) {
+        if (strcmp(entry->key, key) == 0) {
+            entry->value = value;
+            return;
+        }
+        prevEntry = entry;
+        entry = entry->next;
     }
 
-    free(table->items);
+    newEntry = createEntry(key, value);
+    if (prevEntry == NULL) {
+        table->entries[index] = newEntry;
+    } else {
+        prevEntry->next = newEntry;
+    }
+}
+
+void* get(HashTable* table, const char* key) {
+    unsigned int index = hash(key) % TABLE_SIZE;
+
+    Entry* entry = table->entries[index];
+    while (entry != NULL) {
+        if (strcmp(entry->key, key) == 0) {
+            return entry->value;
+        }
+        entry = entry->next;
+    }
+
+    return NULL;
+}
+
+void removeEntry(HashTable* table, const char* key) {
+    unsigned int index = hash(key) % TABLE_SIZE;
+
+    Entry* entry = table->entries[index];
+    Entry* prevEntry = NULL;
+    while (entry != NULL) {
+        if (strcmp(entry->key, key) == 0) {
+            if (prevEntry == NULL) {
+                table->entries[index] = entry->next;
+            } else {
+                prevEntry->next = entry->next;
+            }
+            free(entry->key);
+            free(entry);
+            return;
+        }
+        prevEntry = entry;
+        entry = entry->next;
+    }
+}
+
+void destroyHashTable(HashTable* table) {
+    int i;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        Entry* entry = table->entries[i];
+        while (entry != NULL) {
+            Entry* nextEntry = entry->next;
+            free(entry->key);
+            free(entry);
+            entry = nextEntry;
+        }
+    }
+    free(table->entries);
     free(table);
 }
 
-void print_table(HashTable* table)
-{
+void use_case_example(){
     int i;
-    printf("\nHash Table\n-------------------\n");
+    /* // Inserting key-value pairs with array of strings as values */
+    char* languagesDeveloper1[MAX_ARRAY_SIZE] = {"C", "C++", "Java"};
+    char* languagesDeveloper2[MAX_ARRAY_SIZE] = {"Python", "JavaScript"};
+    char* languagesDeveloper3[MAX_ARRAY_SIZE] = {"Go"};
+    char** dev1Languages = NULL;
+    char** dev2Languages = NULL;
+    char** dev3Languages = NULL;
+    HashTable* table = createHashTable();
 
-    for (i = 0; i < table->size; i++)
-    {
-        if (table->items[i])
-        {
-            printf("Index:%d, Key:%s, Value:%s\n", i, table->items[i] -> key, table->items[i]->value);
+    /* // Example usage
+
+    // Inserting key-value pairs with integer values */
+    insert(table, "key1", (void*)1);
+    insert(table, "key2", (void*)2);
+    insert(table, "key3", (void*)3);
+
+    /* // Retrieving integer values */
+    printf("Value for 'key1': %d\n", (int)(long)get(table, "key1"));
+    printf("Value for 'key2': %d\n", (int)(long)get(table, "key2"));
+    printf("Value for 'key3': %d\n", (int)(long)get(table, "key3"));
+    printf("\n");
+
+    insert(table, "developer1", languagesDeveloper1);
+    insert(table, "developer2", languagesDeveloper2);
+    insert(table, "developer3", languagesDeveloper3);
+
+    /* // Retrieving array of strings */
+    printf("Languages for 'developer1':\n");
+    dev1Languages = (char**)get(table, "developer1");
+    if (dev1Languages != NULL) {
+        for (i = 0; dev1Languages[i] != NULL; i++) {
+            printf("%s\n", dev1Languages[i]);
         }
+    } else {
+        printf("No languages found for 'developer1'\n");
     }
+    printf("\n");
 
-    printf("-------------------\n\n");
+    printf("Languages for 'developer2':\n");
+    dev2Languages = (char**)get(table, "developer2");
+    if (dev2Languages != NULL) {
+        for (i = 0; dev2Languages[i] != NULL; i++) {
+            printf("%s\n", dev2Languages[i]);
+        }
+    } else {
+        printf("No languages found for 'developer2'\n");
+    }
+    printf("\n");
+
+    printf("Languages for 'developer3':\n");
+    dev3Languages = (char**)get(table, "developer3");
+    if (dev3Languages != NULL) {
+        for (i = 0; dev3Languages[i] != NULL; i++) {
+            printf("%s\n", dev3Languages[i]);
+        }
+    } else {
+        printf("No languages found for 'developer3'\n");
+    }
+    printf("\n");
+
+    destroyHashTable(table);
+
 }
 
-void ht_insert(HashTable* table, char* key, char* value)
-{
-    /* Creates the item. */
-    Ht_item* item = create_item(key, value);
-
-    /* Computes the index. */
-    int index = hash_function(key);
-
-    Ht_item* current_item = table->items[index];
-
-    if (current_item == NULL)
-    {
-        /* Key does not exist. */
-        if (table->count == table->size)
-        {
-            /* HashTable is full. */
-            printf("Insert Error: Hash Table is full\n");
-            free_item(item);
-            return;
-        }
-
-        /* Insert directly. */
-        table->items[index] = item;
-        table->count++;
-    }
+/* int main() {
+    use_case_example();
+    return 0;
 }
-
+ */

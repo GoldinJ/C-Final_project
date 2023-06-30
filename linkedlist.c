@@ -39,9 +39,11 @@ void free_list(LinkedList* list) {
                 free(temp->instruction[i]);
             }
             free(temp->instruction);
+            temp->instruction = NULL;
         }
 
         if (temp->word != NULL) {
+            
             if (temp->word->label != NULL) {
                 free(temp->word->label);
             }
@@ -70,6 +72,7 @@ void free_list(LinkedList* list) {
 
         /* Free the node */
         free(temp);
+        
     }
     
     /* Reset the head and tail pointers */
