@@ -1,7 +1,4 @@
-#include "constants.h"
-#include "errors.h"
-#include "parser.h"
-#include "linkedlist.h"
+#include "encoder.h"
 
 const char* opcodes[] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop", NULL};
 const char* registers[] = {"@r0", "@r1", "@r2", "@r3", "@r4", "@r5", "@r6", "@r7", NULL};
@@ -235,6 +232,29 @@ int get_token_type(char *token){
     return TOKEN_UNDEFINED;
 }
 
+int _get_queue_size(machine_w*** word){
+    int i = 0;
+
+    while((*word)[i] != NULL){
+        i++;
+    }
+
+    return i;
+}
+
+void free_word_queue(machine_w*** word, int size) {
+    int i = 0;
+    for (; i < _get_queue_size(word); i++) {
+        if ((*word)[i] != NULL) {
+            free((*word)[i]);
+            (*word)[i] = NULL; 
+        }
+    }
+
+    free(*word);
+    *word = NULL;
+}
+
 void allocate_word_queue(machine_w*** word, int size){
     /*size = first_w + num of operands* + NULL terminator*/
 
@@ -247,30 +267,16 @@ void allocate_word_queue(machine_w*** word, int size){
         exit(1);
     }
 
-    for(i = 0; i<size-1; i++)
+    for(i = 0; i<size-1; i++){
         (*word)[i] =(machine_w*)malloc(sizeof(machine_w));
 
+         if ((*word)[i] == NULL) {
+            fprintf(stderr, "Memory allocation failed in 'allocate_word_queue'\n");
+            free_word_queue(word, i);
+            exit(1);
+        }
+    }
     (*word)[i] = NULL;
-}
-
-int _get_queue_size(machine_w*** word){
-    int i = 0;
-
-    while((*word)[i] != NULL){
-        i++;
-    }
-
-    return i;
-}
-
-void free_word_queue(machine_w*** word, int size){
-    int i = 0;
-    for(; i<_get_queue_size(word); i++){
-        if((*word)[i] != NULL)
-            free((*word)[i]);
-    }
-
-    free((*word));
 }
 
 machine_w* encode_reg_w(char *reg1, char *reg2){
@@ -616,8 +622,8 @@ machine_w** encode(char** instruction){
 
 }
 
-int main (){
-
+void use_case(){
+    
     char *line;
     char *line_copy;
     char **instruction = NULL;
@@ -668,5 +674,5 @@ int main (){
     print_list(&list, FALSE);
     free_list(&list);
 
-    return 0;
+
 }
