@@ -1,26 +1,52 @@
 #include "assembler.h"
 
-void test(FILE *fptr){
-    
+int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruction){
+    int i;
+    int dec_address = 100;
+    machine_w* tmp;
+    machine_w** word_queue = encode(instruction);
+
+    if(word_queue == NULL)
+        return FALSE;
+
+    else{
+
+        i = 0;
+        while(word_queue[i] != NULL){
+            tmp = word_queue[i];
+            
+            if (tmp->label !=NULL){
+                insert(symbol_table, tmp->label, (void*)(long)dec_address);
+            }
+
+            if (i == 0)
+                add_node(list, instruction, tmp);
+            else
+                add_node(list, NULL, tmp);
+            i++;
+            dec_address++;
+        }
+    }
+
+    return TRUE;
+}
+
+void first_pass(FILE *fptr, HashTable *symbol_table, char **externals, char **entries){
     char *line;
     char *line_copy;
     char **instruction = NULL;
     int line_len;
-    int i;
-    int dec_address = 100;
-    machine_w* tmp;
     machine_w** word_queue;
-    HashTable* label_table = NULL;
 
     LinkedList list;
     list.head = NULL;
     list.tail = NULL;
-
-    label_table = createHashTable(); 
+   
+    symbol_table = createHashTable();
 
     while ((line = get_line(fptr)) != NULL) {
 
-        if(line[0] == '\0'){
+        if(line[0] == '\0' || !validate_syntax(line)){
             free(line);
             continue;
         }
@@ -28,13 +54,52 @@ void test(FILE *fptr){
         line_len = strlen(line);
         line_copy = malloc((line_len + 1) * sizeof(char));
         strcpy(line_copy, line);
+        instruction = parse_command(line_copy);
+        word_queue = encode(instruction);
+        
+        if(process_word_queue(symbol_table, &list, instruction))
+            free(word_queue);
+        
+        
+        free(line_copy);
+        free(line);
+    } 
 
-        if (!validate_syntax(line_copy)) {
-            free(line_copy);
+
+}
+
+void test(FILE *fptr){
+    
+    char *line;
+    char *line_copy;
+    char **instruction = NULL;
+    int line_len;
+    char *label;
+    int i;
+    int dec_address = 100;
+    machine_w* tmp;
+    machine_w** word_queue;
+    HashTable* symbol_table = NULL;
+    
+
+    LinkedList list;
+    Node *tmp_node;
+    Node *current_node;
+    list.head = NULL;
+    list.tail = NULL;
+   
+    symbol_table = createHashTable(); 
+
+    while ((line = get_line(fptr)) != NULL) {
+
+        if(line[0] == '\0' || !validate_syntax(line)){
             free(line);
             continue;
         }
 
+        line_len = strlen(line);
+        line_copy = malloc((line_len + 1) * sizeof(char));
+        strcpy(line_copy, line);
         instruction = parse_command(line_copy);
         word_queue = encode(instruction);
         
@@ -49,7 +114,7 @@ void test(FILE *fptr){
             tmp = word_queue[i];
             
             if (tmp->label !=NULL){
-                insert(label_table, tmp->label, (void*)(long)dec_address);
+                insert(symbol_table, tmp->label, (void*)(long)dec_address);
             }
 
             if (i == 0)
@@ -65,9 +130,25 @@ void test(FILE *fptr){
         free(line);
     }
 
-    printHashTable(label_table);
+    current_node = list.head;
+
+    while (current_node != NULL)
+    {
+        tmp_node = current_node;
+        current_node = current_node->next;
+
+        if (tmp_node->word->placeholder)
+        {
+            tmp_node->word->word.im_drct_w->ARE = R;
+            label = tmp_node->word->label;
+            tmp_node->word->word.im_drct_w->src_operand = (int)(long)get(symbol_table, label);
+        }
+        
+    }
+    
+
     print_list(&list, FALSE);
-    freeHashtable(label_table);
+    freeHashtable(symbol_table);
     free_list(&list);
 
 
@@ -75,8 +156,9 @@ void test(FILE *fptr){
 
 int main(int argc, char *argv[]){
     FILE *fsrc;
-    HashTable *table = NULL;
     char *fullpath = NULL;
+    char **entries = NULL;
+    char **externals = NULL;
     int i;
 
     if(argc == 1){

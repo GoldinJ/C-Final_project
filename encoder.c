@@ -315,7 +315,7 @@ machine_w* encode_imdt_drct_w(char* operand, int placeholder){
     machine_w* m_word = (machine_w*)malloc(sizeof(machine_w));
     imdt_drct_w* im_dr_word = (imdt_drct_w*)malloc(sizeof(im_dr_word));
 
-    m_word->label = NULL;
+    m_word->label = (placeholder == TRUE)? operand: NULL;
     m_word->node_type = NODE_IMDT_DRCT_W;
 
     if (token_type == TOKEN_INEGER){
