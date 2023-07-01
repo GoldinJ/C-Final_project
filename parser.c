@@ -24,26 +24,36 @@ void strip(char *str) {
     }
 }
 
-char* get_line(){
+char* get_line(FILE *fptr){
 
     int cnt=0;
     char c;
     int line_len = 0;
     char* line = malloc(line_len*sizeof(char));
-
+ 
     if (line == NULL){
         printf("get_line: Memory allocation failed");
         exit(1);
     }
 
-    if((c=getchar()) == '\n'){
+    c  = fgetc(fptr);
+
+    if(c == '\n'){
         line[cnt] = '\0';
         return line;
     }
 
-    ungetc(c, stdin);
+    if (c == ';') {
+        while ((c = fgetc(fptr)) != '\n' && !feof(fptr)) {
+            /*Skip the current line*/
+        }
+        line[cnt] = '\0';
+        return line;
+    }
 
-    while ((c = getchar()) != '\n' && c != EOF)
+    ungetc(c, fptr);
+
+    while ((c=fgetc(fptr)) != '\n' && !feof(fptr))
     {
         if(line_len == MAX_LINE_LEN){
             printf("The command is to long, max allowed command length is %d charecters\n", MAX_LINE_LEN);
@@ -65,7 +75,7 @@ char* get_line(){
 
     }
 
-    if (cnt == 0 && c == EOF) {
+    if (cnt == 0 && feof(fptr)) {
         /* no more input lines, return NULL */
         free(line);
         return NULL;
