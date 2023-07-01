@@ -51,16 +51,20 @@ void free_list(LinkedList* list) {
             switch (temp->word->node_type)
             {
             case NODE_FIRST_W:
-                free(temp->word->word.f_word); 
+                free(temp->word->word.f_word);
+                temp->word->word.f_word = NULL; 
                 break;
             case NODE_IMDT_DRCT_W:
-                free(temp->word->word.im_drct_w); 
+                free(temp->word->word.im_drct_w);
+                temp->word->word.im_drct_w = NULL; 
                 break;
             case NODE_REG_W:
-                free(temp->word->word.r_word); 
+                free(temp->word->word.r_word);
+                temp->word->word.r_word = NULL; 
                 break;
             case NODE_DATA_W:
-                free(temp->word->word.d_word); 
+                free(temp->word->word.d_word);
+                temp->word->word.d_word = NULL; 
                 break;
 
             default:
