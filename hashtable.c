@@ -1,19 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define TABLE_SIZE 100
-#define MAX_ARRAY_SIZE 100
-
-typedef struct Entry {
-    char* key;
-    void* value;
-    struct Entry* next;
-} Entry;
-
-typedef struct {
-    Entry** entries;
-} HashTable;
+#include "hashtable.h"
 
 unsigned int hash(const char* key) {
     unsigned int hash = 5381;
@@ -26,7 +11,6 @@ unsigned int hash(const char* key) {
     return hash;
 }
 
-/* // Duplicate a string*/
 char* duplicateString(const char* source) {
     size_t length = strlen(source);
     char* destination = (char*)malloc(length + 1);
@@ -108,7 +92,23 @@ void removeEntry(HashTable* table, const char* key) {
     }
 }
 
-void destroyHashTable(HashTable* table) {
+void printHashTable(HashTable* table) {
+    int i;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        Entry* entry = table->entries[i];
+        if (entry != NULL) {
+            printf("Index %d:\t", i);
+            while (entry != NULL) {
+                printf("  Key: %s\t ---- \t", entry->key);
+                printf("  Value: %d\n", (int)(long)entry->value);
+                entry = entry->next;
+            }
+        }
+    }
+    printf("\n");
+}
+
+void freeHashtable(HashTable* table) {
     int i;
     for (i = 0; i < TABLE_SIZE; i++) {
         Entry* entry = table->entries[i];
@@ -185,7 +185,7 @@ void use_case_example(){
     }
     printf("\n");
 
-    destroyHashTable(table);
+    freeHashtable(table);
 
 }
 
