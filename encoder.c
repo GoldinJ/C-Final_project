@@ -150,7 +150,7 @@ int validate_label_syntax(char *token){
     }
 
     if(!IS_CHAR(token[0])){
-        printf("Error:\n");
+        /* printf("Error:\n"); */
         return FALSE;
     }
         
@@ -258,10 +258,12 @@ void free_word_queue(machine_w*** word, int size) {
 void allocate_word_queue(machine_w*** word, int size){
     /*size = first_w + num of operands* + NULL terminator*/
 
-    int i;
     *word = (machine_w**)malloc(size*sizeof(machine_w*));
+    (*word)[0] = (machine_w*)malloc(sizeof(machine_w));
+    (*word)[size-1] = NULL;
 
-    if(*word == NULL){
+
+    /* if(*word == NULL){
         fprintf(stderr, "Memory allocation failed in 'allocate_word_queue'\n");
         free(*word);
         exit(1);
@@ -275,8 +277,9 @@ void allocate_word_queue(machine_w*** word, int size){
             free_word_queue(word, i);
             exit(1);
         }
-    }
-    (*word)[i] = NULL;
+    } */
+
+    /* (*word)[i] = NULL; */
 }
 
 machine_w* encode_reg_w(char *reg1, char *reg2){
@@ -454,7 +457,7 @@ machine_w** encode_first_w(char** line, char* label, int opcode_index, int start
                 if(get_token_type(line[i]) == TOKEN_UNDEFINED)
                     return NULL;
 
-                allocate_word_queue(&word_queue, initial_queue_size+1);
+               allocate_word_queue(&word_queue, initial_queue_size+1);
                 f_word = (first_w*)malloc(sizeof(first_w));
                 word_queue[0]->label = label;
                 word_queue[0]->node_type = NODE_FIRST_W;
@@ -509,7 +512,7 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
     int queue_size;
     char *token;
     int num;
-    machine_w** word_queue = (machine_w**)malloc(sizeof(machine_w*));
+    machine_w** word_queue;
     data_w *d_word;
     
     switch (token_type)
@@ -518,11 +521,11 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
     case TOKEN_DATA:
         queue_size = sizeof_instruction(line) - start_index + 1;
         allocate_word_queue(&word_queue, queue_size);
-        word_queue[0] = (machine_w*)malloc(sizeof(machine_w));
+
         for(j=0; j<queue_size-1; j++, start_index++){
             token = line[start_index];
             d_word = (data_w*)malloc(sizeof(d_word));
-
+            
             if(is_num(token, TRUE)){
                 num = to_int(token);
 
@@ -532,11 +535,17 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
                     return NULL;
                 }
 
-                d_word->data = num;
-                word_queue[j]->word.d_word = d_word;
-
                 if(j == 0)
                     word_queue[j]->label = label;
+                    
+                else
+                    word_queue[j] = (machine_w*)malloc(sizeof(machine_w));
+
+
+                d_word->data = num;
+                word_queue[j]->word.d_word = d_word;
+                word_queue[j]->node_type = NODE_DATA_W;
+
             }
             else{
                 free_word_queue(&word_queue, queue_size);
@@ -552,7 +561,6 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
         token = line[start_index]; /*TODO - validate token syntax*/
         queue_size = sizeof(token);
         allocate_word_queue(&word_queue, queue_size);
-        word_queue[0] = (machine_w*)malloc(sizeof(machine_w));
 
         for(j=1; j<queue_size-1; j++){
             d_word = (data_w*)malloc(sizeof(d_word));
@@ -566,14 +574,18 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
     
             else{
                 d_word->data = token[j];
-                word_queue[j-1]->word.d_word = d_word;
+                word_queue[j-1] = (machine_w*)malloc(sizeof(machine_w));
             }
 
+            word_queue[j-1]->word.d_word = d_word;
+            word_queue[j-1]->node_type = NODE_DATA_W;
         }
 
         d_word = (data_w*)malloc(sizeof(d_word));
         d_word->data = 0;
+        word_queue[j-1] = (machine_w*)malloc(sizeof(machine_w));
         word_queue[j-1]->word.d_word = d_word;
+        word_queue[j-1]->node_type = NODE_DATA_W;
 
         return word_queue;
     
@@ -671,8 +683,7 @@ void use_case(){
         free(line);
     }
 
-    print_list(&list, FALSE);
+    /* print_list(&list, FALSE); */
     free_list(&list);
-
 
 }

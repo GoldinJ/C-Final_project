@@ -28,7 +28,7 @@ char* get_line(FILE *fptr){
 
     int cnt=0;
     char c;
-    int line_len = 0;
+    int line_len = 20;
     char* line = malloc(line_len*sizeof(char));
  
     if (line == NULL){
