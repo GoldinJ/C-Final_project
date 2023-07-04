@@ -141,6 +141,7 @@ char** parse_command(char* line){
 /*Function for finding the name of the macro and storing it an array and saving the macro body into a 2D array corresponding to the name */
 
 MacroData FindMacroData(char** command) {
+    /*INSTRUCTION: MacroData macro_data = FindMacroData(command); */
 
     int i=0 ;
     int count = 0;
@@ -223,7 +224,38 @@ MacroData FindMacroData(char** command) {
     return macro_data;
     }
 
-/* we need another function that holds different macro bodies and identifies which body belongs to which macro*/
+void MacroLayout(char** command, MacroData macro_data) {
+    int i = 0;
+
+    while (command[i] != NULL) {
+        if (strcmp(command[i], "mcro") == 0) {
+            char* macro_name = command[i + 1];
+            int j = 0;
+            int macro_index = -1;
+
+            while (macro_data.macro_names[j] != NULL) {
+                if (strcmp(macro_data.macro_names[j], macro_name) == 0) {
+                    macro_index = j;
+                    break;
+                }
+                j++;
+            }
+
+            if (macro_index != -1) {
+                int k = 0;
+                while (macro_data.macro_bodies[macro_index][k] != NULL) {
+                    command[i++] = macro_data.macro_bodies[macro_index][k];
+                    k++;
+                }
+            } else {
+                i += 2;
+            }
+        } else {
+            i++;
+        }
+    }
+}
+
 
 void FreeMacroData(MacroData macroData) {
     /* Free macro names */
