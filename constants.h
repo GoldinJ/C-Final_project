@@ -61,8 +61,8 @@ typedef struct first_w
 /*Defines a 12 bit an additional machine word for the operand with immediate or direct addressing*/
 typedef struct imdt_drct_w
 {
-    int ARE:2;
-    int src_operand:10;
+    unsigned int ARE:2;
+    unsigned int src_operand:10;
 
 }imdt_drct_w;
 

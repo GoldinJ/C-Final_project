@@ -117,3 +117,25 @@ void print_list(LinkedList* lst, int reverse) {
         current = current->next;
     }
 }
+
+void make_obj_file(LinkedList* lst, char* filename){
+    FILE *fobj = NULL;
+    Node* current = lst->head;
+    Node* temp = NULL;
+
+     if(fobj == NULL){
+            fobj = fopen(strcat(filename, ".obj"), "w");
+        }
+
+    while (current != NULL)
+    {
+        temp = current;
+        current = current->next;
+        fprintf(fobj, "%s\n", int_to_Base64(*((unsigned int *)temp->word->word.f_word)));
+    }
+    
+    if(fobj != NULL)
+        fclose(fobj);
+
+
+}

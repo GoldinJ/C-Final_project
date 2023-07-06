@@ -24,41 +24,10 @@ void print_last_12_bits(unsigned int num) {
     printf("\n");
 }
 
-void append(char** array, const char* newString) {
-    int size = 0;
+char* duplicate(char *src){
+    int len = strlen(src);
+    char* duplicate = (char*)malloc(len*sizeof(char));
+    strcpy(duplicate, src);
 
-    /* Calculate the current size of the array */
-    if (array != NULL) {
-        while (array[size] != NULL) {
-            size++;
-        }
-    }
-    
-    size++;
-
-    array = (char**)realloc(array, (size + 1) * sizeof(char*));
-
-    array[size - 1] = (char*)malloc((strlen(newString) + 1) * sizeof(char));
-
-    strcpy(array[size - 1], newString);
-
-    array[size] = NULL;
-}
-
-void freeArray(char** array){
-    int i;
-    for (i = 0; array[i] != NULL; i++) {
-        free(array[i]);
-    }
-    free(array);
-}
-
-void printArray(char **array){
-    int i = 0;
-
-    while(array[i] != NULL){
-        printf("%s |", array[i]);
-        i++;
-    }
-    printf("\n");
+    return duplicate;
 }

@@ -31,9 +31,9 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruc
     return TRUE;
 }
 
-int process_instruction(char** instruction, HashTable *external_symbols, HashTable *entry_symbols){
+int process_symbols(char** instruction, HashTable *external_symbols, HashTable *entry_symbols){
     int i = 0;
-    char *label;
+    /* char *label; */
     int is_ext = FALSE;
     int is_ent = FALSE;
     
@@ -41,13 +41,15 @@ int process_instruction(char** instruction, HashTable *external_symbols, HashTab
         return FALSE;
 
     while(instruction[i] != NULL){
-        if(get_token_type(instruction[i]) == TOKEN_LABEL_DEFENITION){
-            label = instruction[i];
-        }
-        else if(get_token_type(instruction[i]) == TOKEN_EXTERN)
+        /* if(get_token_type(instruction[i]) == TOKEN_LABEL_DEFENITION)
+            label = instruction[i]; */
+
+        if(get_token_type(instruction[i]) == TOKEN_EXTERN)
             is_ext = TRUE;
+
         else if(get_token_type(instruction[i]) == TOKEN_ENTRY)
             is_ent = TRUE;
+
         else if (get_token_type(instruction[i]) == TOKEN_LABEL && is_ent)
         {
             insert(entry_symbols, instruction[i], (void*)(long)R);
@@ -63,65 +65,12 @@ int process_instruction(char** instruction, HashTable *external_symbols, HashTab
     return TRUE;
 }
 
-void first_pass(FILE *fptr, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
+void first_pass(FILE *fptr, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
     char *line;
     char *line_copy;
     char **instruction = NULL;
     int line_len;
-    machine_w** word_queue;
-
-    LinkedList list;
-    list.head = NULL;
-    list.tail = NULL;
-   
-    symbol_table = createHashTable();
-
-    while ((line = get_line(fptr)) != NULL) {
-
-        if(line[0] == '\0' || !validate_syntax(line)){
-            free(line);
-            continue;
-        }
-
-        line_len = strlen(line);
-        line_copy = malloc((line_len + 1) * sizeof(char));
-        strcpy(line_copy, line);
-        instruction = parse_command(line_copy);
-        word_queue = encode(instruction);
-        
-        if(process_word_queue(symbol_table, &list, instruction, NULL))
-            free(word_queue);
-        
-        
-        free(line_copy);
-        free(line);
-    } 
-
-
-}
-
-void test(FILE *fptr){
-    
-    char *line;
-    char *line_copy;
-    char **instruction = NULL;
-    int line_len;
-    char *label;
     int dec_address = 100;
-   /*  machine_w* tmp; */
-    /* machine_w** word_queue; */
-    HashTable* symbol_table = NULL;
-    HashTable* external_symbols = createHashTable();
-    HashTable* entry_symbols = createHashTable();
-    
-
-    LinkedList list;
-    Node *tmp_node;
-    Node *current_node;
-    list.head = NULL;
-    list.tail = NULL;
-   
-    symbol_table = createHashTable();
 
     while ((line = get_line(fptr)) != NULL) {
 
@@ -134,62 +83,109 @@ void test(FILE *fptr){
         line_copy = malloc((line_len + 1) * sizeof(char));
         strcpy(line_copy, line);
         instruction = parse_command(line_copy);
-        /* word_queue = encode(instruction);
-        
-        if (word_queue == NULL){
-            free(line_copy);
-            free(line);
-            continue;
-        } */
+    
+        process_symbols(instruction, external_symbols, entry_symbols);
+        process_word_queue(symbol_table, list, instruction, &dec_address);
 
-        process_instruction(instruction, external_symbols, entry_symbols);
-        process_word_queue(symbol_table, &list, instruction, &dec_address);
-
-        /* i = 0;
-        while(word_queue[i] != NULL){
-            tmp = word_queue[i];
-            
-            if (tmp->label !=NULL){
-                insert(symbol_table, tmp->label, (void*)(long)dec_address);
-            }
-
-            if (i == 0)
-                add_node(&list, instruction, tmp);
-            else
-                add_node(&list, NULL, tmp);
-            i++;
-            dec_address++;
-        } */
-        
-        /* free(word_queue); */
         free(line_copy);
         free(line);
     }
+    
+    if(fptr != NULL)
+        fclose(fptr);
+}
 
-    current_node = list.head;
+void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
+    
+    int cnt = 0;
+    char *label;
+    FILE *fentry = NULL;
+    FILE *fextern = NULL;
+    Node *tmp_node;
+    Node *current_node = list->head;
+    char *fname_entry = NULL;
+    char *fname_ext = NULL;
 
     while (current_node != NULL)
     {
         tmp_node = current_node;
         current_node = current_node->next;
+        label = tmp_node->word->label;
+
+        if(label != NULL && !tmp_node->word->placeholder){
+            if ((int)(long)(get(entry_symbols, tmp_node->word->label) != 0)){
+                if(fentry == NULL){
+                    fname_entry = duplicate(filename);
+                    fentry = fopen(strcat(fname_entry, ".ent"), "w");
+                }
+                fprintf(fentry, "%s\t%d\n", tmp_node->word->label, (int)(long)(get(symbol_table, tmp_node->word->label)));
+            }
+        }
 
         if (tmp_node->word->placeholder)
         {
+
+            if ((int)(long)(get(external_symbols, label) != 0)){
+                tmp_node->word->word.im_drct_w->ARE = E;
+                tmp_node->word->word.im_drct_w->src_operand = 0;
+
+                if(fextern == NULL){
+                    fname_ext = duplicate(filename);
+                    fextern = fopen(strcat(fname_ext, ".ext"), "w");
+                }
+                    
+                fprintf(fextern, "%s\t%d\n", label, cnt+100);
+                cnt++;
+                continue;
+                    
+            }
+            
             tmp_node->word->word.im_drct_w->ARE = R;
-            label = tmp_node->word->label;
             tmp_node->word->word.im_drct_w->src_operand = (int)(long)get(symbol_table, label);
         }
+
+        
+        cnt++;
         
     }
+
+    if (fentry!=NULL)
+        fclose(fentry);
+    if (fextern!=NULL)
+        fclose(fextern);
+    if (fname_entry != NULL)
+        free(fname_entry);
+    if (fname_ext != NULL)
+        free(fname_ext);
+        
+}
+
+void process_input(FILE *fptr, char* filename){
     
+    HashTable* symbol_table =  createHashTable();
+    HashTable* external_symbols = createHashTable();
+    HashTable* entry_symbols = createHashTable();
     
+    LinkedList list;
+    list.head = NULL;
+    list.tail = NULL;
+
+    first_pass(fptr, &list, symbol_table, external_symbols, entry_symbols);
+    second_pass(filename, &list, symbol_table, external_symbols, entry_symbols);
+
+    printf("Extern symbols:\n----------------------\n");
     printHashTable(external_symbols);
+    printf("Entry symbols:\n----------------------\n");
     printHashTable(entry_symbols);
+    printf("Symbols table:\n----------------------\n");
     printHashTable(symbol_table);
     print_list(&list, FALSE);
-    freeHashtable(symbol_table);
-    free_list(&list);
+    make_obj_file(&list, filename);
 
+    freeHashtable(symbol_table);
+    freeHashtable(entry_symbols);
+    freeHashtable(external_symbols);
+    free_list(&list);
 
 }
 
@@ -249,10 +245,7 @@ void encoder_use_case(FILE *fptr){
 int main(int argc, char *argv[]){
     FILE *fsrc;
     char *fullpath = NULL;
-    /* int dec_address;
-    HashTable *symbol_table = NULL;
-    HashTable *external_symbols= NULL;
-    HashTable *entry_symbols = NULL; */
+    char *file_name = NULL;
     int i;
 
     if(argc == 1){
@@ -263,17 +256,18 @@ int main(int argc, char *argv[]){
     if (argc > 1){
         for(i = 1; i<argc; i++){
             
+            file_name = duplicate(argv[i]);
             fullpath = strcat(argv[i], ".am");
             fsrc = fopen(fullpath, "r");
 
             if (fsrc == NULL){
                 printf("File not found - %s\n", fullpath);
-                exit(1);
+                continue;
             }
             else
-                encoder_use_case(fsrc);
+                process_input(fsrc, file_name);
                 
-
+            free(file_name);
         }
 
     }

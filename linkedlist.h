@@ -21,6 +21,7 @@ void print_node(char **instruction);
 void print_list(LinkedList* lst, int reverse);
 void print_to_file(FILE *fptr, LinkedList *lst, int reverse);
 void free_list(LinkedList* lst);
+void make_obj_file(LinkedList* lst, char* filename);
 
 
 #endif 
