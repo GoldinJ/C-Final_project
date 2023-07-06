@@ -130,6 +130,7 @@ char** parse_command(char* line){
 
         command[i] = malloc((strlen(token) + 1) * sizeof(char));
         strcpy(command[i], token);
+        /* printf("+ parse_command - %p, '%s'\n", command[i], command[i]); */
         i++;
         token = strtok(NULL, " \t, \t");
     }
@@ -285,7 +286,8 @@ void FreeMacroData(MacroData macroData) {
 
 void free_command(char** command) {
     int i;
-    for (i = 0; command[i] != NULL; i++) {
+    for (i = 0; command[i] != NULL; i++){
+        /* printf("- parse_command - %p, '%s'\n", command[i], command[i]); */
         free(command[i]);
     }
     free(command);

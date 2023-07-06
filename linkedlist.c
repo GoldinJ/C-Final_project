@@ -36,6 +36,7 @@ void free_list(LinkedList* list) {
         if(temp->instruction != NULL){
             /* Free the instruction */
             for (i = 0; temp->instruction[i] != NULL; i++) {
+                /* printf("- parse_command - %p, '%s'\n", temp->instruction[i], temp->instruction[i]); */
                 free(temp->instruction[i]);
                 temp->instruction[i] = NULL;
             }
@@ -122,6 +123,7 @@ void make_obj_file(LinkedList* lst, char* filename){
     FILE *fobj = NULL;
     Node* current = lst->head;
     Node* temp = NULL;
+    char *base64;
 
      if(fobj == NULL){
             fobj = fopen(strcat(filename, ".obj"), "w");
@@ -131,7 +133,9 @@ void make_obj_file(LinkedList* lst, char* filename){
     {
         temp = current;
         current = current->next;
-        fprintf(fobj, "%s\n", int_to_Base64(*((unsigned int *)temp->word->word.f_word)));
+        base64 = int_to_Base64(*((unsigned int *)temp->word->word.f_word));
+        fprintf(fobj, "%s\n", base64);
+        free(base64);
     }
     
     if(fobj != NULL)

@@ -44,11 +44,13 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
         /* if(get_token_type(instruction[i]) == TOKEN_LABEL_DEFENITION)
             label = instruction[i]; */
 
-        if(get_token_type(instruction[i]) == TOKEN_EXTERN)
+        if(get_token_type(instruction[i]) == TOKEN_EXTERN){
             is_ext = TRUE;
+        }
 
-        else if(get_token_type(instruction[i]) == TOKEN_ENTRY)
+        else if(get_token_type(instruction[i]) == TOKEN_ENTRY){
             is_ent = TRUE;
+        }
 
         else if (get_token_type(instruction[i]) == TOKEN_LABEL && is_ent)
         {
@@ -57,9 +59,15 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
         else if (get_token_type(instruction[i]) == TOKEN_LABEL && is_ext)
         {
             insert(external_symbols, instruction[i], (void*)(long)E);
+           
         }
         
         i++;
+    }
+    
+    if(is_ent || is_ext){
+        free_command(instruction);
+        return FALSE;
     }
 
     return TRUE;
@@ -84,8 +92,8 @@ void first_pass(FILE *fptr, LinkedList *list, HashTable *symbol_table, HashTable
         strcpy(line_copy, line);
         instruction = parse_command(line_copy);
     
-        process_symbols(instruction, external_symbols, entry_symbols);
-        process_word_queue(symbol_table, list, instruction, &dec_address);
+        if(process_symbols(instruction, external_symbols, entry_symbols))
+            process_word_queue(symbol_table, list, instruction, &dec_address);
 
         free(line_copy);
         free(line);
@@ -115,7 +123,7 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
         if(label != NULL && !tmp_node->word->placeholder){
             if ((int)(long)(get(entry_symbols, tmp_node->word->label) != 0)){
                 if(fentry == NULL){
-                    fname_entry = duplicate(filename);
+                    fname_entry = duplicateString(filename);
                     fentry = fopen(strcat(fname_entry, ".ent"), "w");
                 }
                 fprintf(fentry, "%s\t%d\n", tmp_node->word->label, (int)(long)(get(symbol_table, tmp_node->word->label)));
@@ -130,7 +138,7 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
                 tmp_node->word->word.im_drct_w->src_operand = 0;
 
                 if(fextern == NULL){
-                    fname_ext = duplicate(filename);
+                    fname_ext = duplicateString(filename);
                     fextern = fopen(strcat(fname_ext, ".ext"), "w");
                 }
                     
@@ -266,7 +274,7 @@ int main(int argc, char *argv[]){
             }
             else
                 process_input(fsrc, file_name);
-                
+
             free(file_name);
         }
 

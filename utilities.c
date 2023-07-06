@@ -23,11 +23,3 @@ void print_last_12_bits(unsigned int num) {
     }
     printf("\n");
 }
-
-char* duplicate(char *src){
-    int len = strlen(src);
-    char* duplicate = (char*)malloc(len*sizeof(char));
-    strcpy(duplicate, src);
-
-    return duplicate;
-}
