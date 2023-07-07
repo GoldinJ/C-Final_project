@@ -67,6 +67,7 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
     
     if(is_ent || is_ext){
         free_command(instruction);
+        instruction = NULL;
         return FALSE;
     }
 
@@ -103,7 +104,7 @@ void first_pass(FILE *fptr, LinkedList *list, HashTable *symbol_table, HashTable
         fclose(fptr);
 }
 
-void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
+void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols, int *IC, int *DC){
     
     int cnt = 0;
     char *label;
@@ -119,6 +120,11 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
         tmp_node = current_node;
         current_node = current_node->next;
         label = tmp_node->word->label;
+
+        if(tmp_node->word->node_type == NODE_DATA_W)
+            (*DC)++;
+        else
+            (*IC)++;
 
         if(label != NULL && !tmp_node->word->placeholder){
             if ((int)(long)(get(entry_symbols, tmp_node->word->label) != 0)){
@@ -168,8 +174,39 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
         
 }
 
+void make_obj_file(LinkedList* lst, char* filename, int IC, int DC){
+    FILE *fobj = NULL;
+    Node* current = lst->head;
+    Node* temp = NULL;
+    char *ob_filename;
+    char *base64;
+
+     if(fobj == NULL){
+            ob_filename = duplicateString(filename);
+            fobj = fopen(strcat(ob_filename, ".ob"), "w");
+            fprintf(fobj, "%d %d\n", IC, DC);
+        }
+
+    while (current != NULL)
+    {
+        temp = current;
+        current = current->next;
+        base64 = int_to_Base64(*((unsigned int *)temp->word->word.f_word));
+        fprintf(fobj, "%s\n", base64);
+        free(base64);
+    }
+    
+    if(fobj != NULL){
+        free(ob_filename);
+        fclose(fobj);
+    }
+
+}
+
 void process_input(FILE *fptr, char* filename){
     
+    int IC = 0;
+    int DC = 0;
     HashTable* symbol_table =  createHashTable();
     HashTable* external_symbols = createHashTable();
     HashTable* entry_symbols = createHashTable();
@@ -179,7 +216,7 @@ void process_input(FILE *fptr, char* filename){
     list.tail = NULL;
 
     first_pass(fptr, &list, symbol_table, external_symbols, entry_symbols);
-    second_pass(filename, &list, symbol_table, external_symbols, entry_symbols);
+    second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
 
     printf("Extern symbols:\n----------------------\n");
     printHashTable(external_symbols);
@@ -187,8 +224,8 @@ void process_input(FILE *fptr, char* filename){
     printHashTable(entry_symbols);
     printf("Symbols table:\n----------------------\n");
     printHashTable(symbol_table);
-    print_list(&list, FALSE);
-    make_obj_file(&list, filename);
+    /* print_list(&list, FALSE); */
+    make_obj_file(&list, filename, IC, DC);
 
     freeHashtable(symbol_table);
     freeHashtable(entry_symbols);
@@ -264,7 +301,7 @@ int main(int argc, char *argv[]){
     if (argc > 1){
         for(i = 1; i<argc; i++){
             
-            file_name = duplicate(argv[i]);
+            file_name = duplicateString(argv[i]);
             fullpath = strcat(argv[i], ".am");
             fsrc = fopen(fullpath, "r");
 

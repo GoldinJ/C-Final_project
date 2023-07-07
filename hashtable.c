@@ -11,15 +11,6 @@ unsigned int hash(const char* key) {
     return hash;
 }
 
-char* duplicateString(const char* source) {
-    size_t length = strlen(source);
-    char* destination = (char*)malloc(length + 1);
-    if (destination != NULL) {
-        strcpy(destination, source);
-    }
-    return destination;
-}
-
 Entry* createEntry(const char* key, void* value) {
     Entry* entry = (Entry*)malloc(sizeof(Entry));
     entry->key = duplicateString(key);

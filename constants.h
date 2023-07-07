@@ -28,7 +28,7 @@ enum Registers_enum {R0, R1, R2, R3, R4, R5, R6, R8};
 enum dt_enum {ENTRY, EXTERN, DATA, STR};
 
 enum addressing {IMDT=1, DRCT=3, DRCT_REG=5};
-enum are {A, R, E};
+enum are {A, E, R};
 
 enum token_type{
     TOKEN_LABEL_DEFENITION,
@@ -103,75 +103,12 @@ typedef struct machine_w
     
 }machine_w;
 
-typedef struct operand_node
-{
-    int type;
-    char *token;
-
-}operand_node;
-
-typedef struct data_node
-{
-    int type;
-    char **data;
-}data_node;
-
-typedef struct string_node
-{
-    int type;
-    char *token;
-
-}string_node;
-
-
-typedef struct instruction_2op
-{
-    /* Defines an instruction with 2 operands (mov, add, cmp, etc..)*/
-    char* label;
-    int opcode_index;
-    operand_node first;
-    operand_node second;
-
-}instruction_2op;
-
-typedef struct instruction_1op
-{
-    /* Defines an instruction with one operand (jmp, bne, not, etc..)*/
-    char* label;
-    int opcode_index;
-    operand_node first;
-}instruction_1op;
-
-typedef struct instruction_0
-{
-    /* Defines an instruction with no operands (stop, rts)*/
-    int opcode_index;
-}instruction_0;
-
-
-
-typedef struct instruction_w
-{
-    char *label;
-    union instruction
-    {
-        instruction_2op i2;
-        instruction_1op i1;
-        instruction_0 i0;
-        
-    }instruct;
-    
-
-}instructtion_w;
-
 /*struct to hold the name , body , number of lines*/
 typedef struct {
     char** macro_names;
     char*** macro_bodies;
     int* macro_body_counts;
 } MacroData;
-
-
 
 #endif
 

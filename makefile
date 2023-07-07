@@ -40,4 +40,4 @@ leak-check:
 	valgrind --leak-check=full --track-origins=yes ./assembler ps
 
 clean:
-	rm -f assembler encoder parser debug *.o *.ent *.ext *.obj
+	rm -f assembler encoder parser debug *.o *.ent *.ext *.ob

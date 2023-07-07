@@ -1,5 +1,7 @@
 *.*
 *.o
+assembler
+debug
 !makefile
 !.gitignore
 !*.c

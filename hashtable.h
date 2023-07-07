@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utilities.h"
 
 #define TABLE_SIZE 100
 #define MAX_ARRAY_SIZE 100

@@ -257,7 +257,6 @@ void MacroLayout(char** command, MacroData macro_data) {
     }
 }
 
-
 void FreeMacroData(MacroData macroData) {
     /* Free macro names */
     int i, j;

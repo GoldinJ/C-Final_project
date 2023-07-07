@@ -6,5 +6,6 @@
 
 char* int_to_Base64(int binary);
 void print_last_12_bits(unsigned int num);
+char* duplicateString(const char* source);
 #endif 
 

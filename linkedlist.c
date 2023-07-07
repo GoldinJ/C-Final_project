@@ -28,19 +28,13 @@ void add_node(LinkedList* lst, char** instruction, machine_w* word) {
 void free_list(LinkedList* list) {
     Node* current = list->head;
     Node* temp = NULL;
-    int i;
+
     while (current != NULL) {
         temp = current;
         current = current->next;
         
         if(temp->instruction != NULL){
-            /* Free the instruction */
-            for (i = 0; temp->instruction[i] != NULL; i++) {
-                /* printf("- parse_command - %p, '%s'\n", temp->instruction[i], temp->instruction[i]); */
-                free(temp->instruction[i]);
-                temp->instruction[i] = NULL;
-            }
-            free(temp->instruction);
+            free_command(temp->instruction);
             temp->instruction = NULL;
         }
 
@@ -52,34 +46,29 @@ void free_list(LinkedList* list) {
 
             switch (temp->word->node_type)
             {
-            case NODE_FIRST_W:
-                free(temp->word->word.f_word);
-                temp->word->word.f_word = NULL;
-                free(temp->word);
-                temp->word = NULL;
-                break;
-            case NODE_IMDT_DRCT_W:
-                free(temp->word->word.im_drct_w);
-                temp->word->word.im_drct_w = NULL;
-                free(temp->word);
-                temp->word = NULL;
-                break;
-            case NODE_REG_W:
-                free(temp->word->word.r_word);
-                temp->word->word.r_word = NULL;
-                free(temp->word);
-                temp->word = NULL;
-                break;
-            case NODE_DATA_W:
-                free(temp->word->word.d_word);
-                temp->word->word.d_word = NULL;
-                free(temp->word);
-                temp->word = NULL;
-                break;
+                case NODE_FIRST_W:
+                    free(temp->word->word.f_word);
+                    temp->word->word.f_word = NULL;
+                    break;
+                case NODE_IMDT_DRCT_W:
+                    free(temp->word->word.im_drct_w);
+                    temp->word->word.im_drct_w = NULL;
+                    break;
+                case NODE_REG_W:
+                    free(temp->word->word.r_word);
+                    temp->word->word.r_word = NULL;
+                    break;
+                case NODE_DATA_W:
+                    free(temp->word->word.d_word);
+                    temp->word->word.d_word = NULL;
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
             }
+
+            free(temp->word);
+            temp->word = NULL;
         }
 
         /* Free the node */
@@ -117,29 +106,4 @@ void print_list(LinkedList* lst, int reverse) {
         
         current = current->next;
     }
-}
-
-void make_obj_file(LinkedList* lst, char* filename){
-    FILE *fobj = NULL;
-    Node* current = lst->head;
-    Node* temp = NULL;
-    char *base64;
-
-     if(fobj == NULL){
-            fobj = fopen(strcat(filename, ".obj"), "w");
-        }
-
-    while (current != NULL)
-    {
-        temp = current;
-        current = current->next;
-        base64 = int_to_Base64(*((unsigned int *)temp->word->word.f_word));
-        fprintf(fobj, "%s\n", base64);
-        free(base64);
-    }
-    
-    if(fobj != NULL)
-        fclose(fobj);
-
-
 }
