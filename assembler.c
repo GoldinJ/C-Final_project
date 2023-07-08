@@ -1,5 +1,7 @@
 #include "assembler.h"
 
+int EC = 0; 
+
 int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruction, int *dec_address){
     int i;
     machine_w* tmp;
@@ -33,35 +35,47 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruc
 
 int process_symbols(char** instruction, HashTable *external_symbols, HashTable *entry_symbols){
     int i = 0;
-    /* char *label; */
     int is_ext = FALSE;
     int is_ent = FALSE;
+    int token_type = TOKEN_UNDEFINED;
     
     if(instruction == NULL)
         return FALSE;
 
     while(instruction[i] != NULL){
-        /* if(get_token_type(instruction[i]) == TOKEN_LABEL_DEFENITION)
-            label = instruction[i]; */
 
-        if(get_token_type(instruction[i]) == TOKEN_EXTERN){
-            is_ext = TRUE;
-        }
+        token_type = get_token_type(instruction[i]);
 
-        else if(get_token_type(instruction[i]) == TOKEN_ENTRY){
-            is_ent = TRUE;
-        }
-
-        else if (get_token_type(instruction[i]) == TOKEN_LABEL && is_ent)
+        switch (token_type)
         {
-            insert(entry_symbols, instruction[i], (void*)(long)R);
+            case TOKEN_UNDEFINED:
+                free_command(instruction);
+                instruction = NULL;
+                EC++;
+                return FALSE;
+                break;
+
+            case TOKEN_ENTRY:
+                is_ent = TRUE;
+                break;
+
+            case TOKEN_EXTERN:
+                is_ext = TRUE;
+                break;
+
+            case TOKEN_LABEL:
+                if(is_ent)
+                    insert(entry_symbols, instruction[i], (void*)(long)R);
+                else if (is_ext)
+                    insert(external_symbols, instruction[i], (void*)(long)E);
+
+                break;
+                
+
+            default:
+                break;
         }
-        else if (get_token_type(instruction[i]) == TOKEN_LABEL && is_ext)
-        {
-            insert(external_symbols, instruction[i], (void*)(long)E);
-           
-        }
-        
+
         i++;
     }
     
@@ -181,7 +195,13 @@ void make_obj_file(LinkedList* lst, char* filename, int IC, int DC){
     char *ob_filename;
     char *base64;
 
-     if(fobj == NULL){
+    if(EC > 0){
+        printf("Errors (%d errors) are found in %s.am.\n", EC, filename);
+        printf("%s.ob - wasn't created\n", filename);
+        return;
+    }
+
+    if(fobj == NULL){
             ob_filename = duplicateString(filename);
             fobj = fopen(strcat(ob_filename, ".ob"), "w");
             fprintf(fobj, "%d %d\n", IC, DC);
@@ -218,12 +238,12 @@ void process_input(FILE *fptr, char* filename){
     first_pass(fptr, &list, symbol_table, external_symbols, entry_symbols);
     second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
 
-    printf("Extern symbols:\n----------------------\n");
+    /* printf("Extern symbols:\n----------------------\n");
     printHashTable(external_symbols);
     printf("Entry symbols:\n----------------------\n");
     printHashTable(entry_symbols);
     printf("Symbols table:\n----------------------\n");
-    printHashTable(symbol_table);
+    printHashTable(symbol_table); */
     /* print_list(&list, FALSE); */
     make_obj_file(&list, filename, IC, DC);
 
@@ -306,7 +326,7 @@ int main(int argc, char *argv[]){
             fsrc = fopen(fullpath, "r");
 
             if (fsrc == NULL){
-                printf("File not found - %s\n", fullpath);
+                fprintf(stderr, FILE_NOT_FOUND, fullpath);
                 continue;
             }
             else

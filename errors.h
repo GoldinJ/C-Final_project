@@ -12,3 +12,7 @@
 #define INVALID_INTEGER_SYNTAX SET_TO_RED("Error: ") "Invalid integer syntax - '%s'\n"
 #define IVALID_INTEGER_VALUE_TOO_BIG SET_TO_RED("Error: ") "Integer is too big - '%d', max allowed value is 1023\n"
 #define IVALID_INTEGER_VALUE_TOO_SMALL SET_TO_RED("Error: ") "Integer is too small - '%d', min allowed value is -1023\n"
+                            
+  /*                           ==================================== File Errors ====================================            */
+                
+#define FILE_NOT_FOUND SET_TO_RED("Error: ") "File not found - '%s'\n"

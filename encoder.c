@@ -179,7 +179,7 @@ int get_token_type(char *token){
 
     else if(START_WITH(token, '@')){
         if(!is_in(token, registers)){
-            /* fprintf(stderr, INVALID_REGISTER, token); */
+            fprintf(stderr, INVALID_REGISTER, token);
             return TOKEN_UNDEFINED;
         }
         return TOKEN_REGISTER;
