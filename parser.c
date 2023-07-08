@@ -139,98 +139,138 @@ char** parse_command(char* line){
     return command;
 }
 
+
+
+char** Order_array(FILE *fptr, int* numRows) {
+    const int MAX_ROWS = 100;  // Maximum number of rows allowed
+
+    char** orderArray = malloc(MAX_ROWS * sizeof(char*));
+    int i = 0;  // Rows
+
+    char line[MAX_LINE_LEN];
+    while (fgets(line, MAX_LINE_LEN, fptr) != NULL && i < MAX_ROWS) {
+        // Remove newline character if present
+        size_t lineLength = strlen(line);
+        if (lineLength > 0 && line[lineLength - 1] == '\n') {
+            line[lineLength - 1] = '\0';
+            lineLength--;
+        }
+
+        orderArray[i] = malloc((lineLength + 1) * sizeof(char));
+        strcpy(orderArray[i], line);
+        i++;
+    }
+
+    *numRows = i;
+
+    return orderArray;
+}
+
+void free_orderArray(char** orderArray) {
+    int i;
+    for (i = 0; orderArray[i] != NULL; i++) {
+        free(orderArray[i]);
+    }
+    free(orderArray);
+}
+
 /*Function for finding the name of the macro and storing it an array and saving the macro body into a 2D array corresponding to the name */
 
-MacroData FindMacroData(char** command) {
-    /*INSTRUCTION: MacroData macro_data = FindMacroData(command); */
-
-    int i=0 ;
+MacroData FindMacroData(char** orderArray) {
+    int i = 0;
     int count = 0;
-    char** macro_name=NULL;
-    char*** macro_body=NULL;
-    int* macro_body_counts=NULL;
+    char** macro_name = NULL;
+    char*** macro_body = NULL;
+    int* macro_body_counts = NULL;
     char** current_macro_body = NULL;
     MacroData macro_data;
 
-    while(command[i]!=NULL) {
-        if (strcmp(command[i], "mcro") == 0) {
-            if (command[i + 1]!=NULL) {
-                i+=2; /*move the i to point at the macro body*/
+    while (orderArray[i] != NULL) {
+        if (strcmp(orderArray[i], "mcro") == 0) {
+            if (orderArray[i + 1] != NULL) {
+                i += 2; /*move the i to point at the macro body*/
 
                 /*allocate memory for the macro names*/
-                macro_name=realloc(macro_name,(count+1) * sizeof (char*));
-                if(macro_name==NULL) {
-                    fprintf(stderr,"\"macro_name: Memory allocation failed\"\n");
+                macro_name = realloc(macro_name, (count + 1) * sizeof(char*));
+                if (macro_name == NULL) {
+                    fprintf(stderr, "\"macro_name: Memory allocation failed\"\n");
                     exit(1);
                 }
-                macro_name[count]= (char*)malloc(strlen(command[i - 1]) + 1);
+                macro_name[count] = malloc((strlen(orderArray[i - 1]) + 1) * sizeof(char));
                 if (macro_name[count] == NULL) {
                     fprintf(stderr, "\"macro_name: Memory allocation failed\"\n");
                     exit(1);
                 }
+                strcpy(macro_name[count], orderArray[i - 1]);
 
                 /*allocate memory for the macro bodies*/
-                macro_body_counts = realloc(macro_body_counts,(count+1)*sizeof(int));
-                if(macro_body_counts==NULL) {
-                    fprintf(stderr,"\"macro_body_counts: Memory allocation failed\"\n");
+                macro_body_counts = realloc(macro_body_counts, (count + 1) * sizeof(int));
+                if (macro_body_counts == NULL) {
+                    fprintf(stderr, "\"macro_body_counts: Memory allocation failed\"\n");
                     exit(1);
                 }
-                macro_body_counts[count]=0;
+                macro_body_counts[count] = 0;
 
                 /*processing macro_body */
-                while(command[i]!=NULL && strcmp(command[i],"endmcro")!=0){
+                while (orderArray[i] != NULL && strcmp(orderArray[i], "endmcro") != 0) {
                     /* Allocate memory for current_macro_body*/
                     current_macro_body = realloc(current_macro_body, (macro_body_counts[count] + 1) * sizeof(char*));
-                    if(current_macro_body==NULL) {
-                        fprintf(stderr,"\"current_macro_body: Memory allocation failed\"\n");
+                    if (current_macro_body == NULL) {
+                        fprintf(stderr, "\"current_macro_body: Memory allocation failed\"\n");
                         exit(1);
                     }
-                    current_macro_body[macro_body_counts[count]]= (char*)malloc(strlen(command[i]) + 1);
+                    current_macro_body[macro_body_counts[count]] = malloc((strlen(orderArray[i]) + 1) * sizeof(char));
                     if (current_macro_body[macro_body_counts[count]] == NULL) {
                         fprintf(stderr, "\"current_macro_body: Memory allocation failed\"\n");
                         exit(1);
                     }
-                    strcpy(current_macro_body[macro_body_counts[count]], command[i]);
+                    strcpy(current_macro_body[macro_body_counts[count]], orderArray[i]);
                     i++;
                     macro_body_counts[count]++;
                 }
+
                 /*allocate memory for macro body*/
-                macro_body= realloc(macro_body,(count+1)*sizeof (char**));
-                if(macro_body==NULL) {
-                    fprintf(stderr,"\"macro_body: Memory allocation failed\"\n");
+                macro_body = realloc(macro_body, (count + 1) * sizeof(char**));
+                if (macro_body == NULL) {
+                    fprintf(stderr, "\"macro_body: Memory allocation failed\"\n");
                     exit(1);
                 }
-                macro_body[count]=current_macro_body;
+                macro_body[count] = current_macro_body;
                 count++;
-                }
             }
-        i++;
         }
+        i++;
+    }
 
-
-    macro_name = realloc(macro_name,(count+1)*sizeof(char*));
-    if(macro_name==NULL) {
-        fprintf(stderr,"\"macro_name: Memory allocation failed\"\n");
+    macro_name = realloc(macro_name, (count + 1) * sizeof(char*));
+    if (macro_name == NULL) {
+        fprintf(stderr, "\"macro_name: Memory allocation failed\"\n");
         exit(1);
     }
-    macro_name[count]=NULL;
+    macro_name[count] = NULL;
 
-    /*Create MacroData structure to hold the name , body , count the lines*/
+    /* Create MacroData structure to hold the name, body, and count of the lines */
     macro_data.macro_names = macro_name;
     macro_data.macro_bodies = macro_body;
     macro_data.macro_body_counts = macro_body_counts;
 
-    /*free the memory allocated to command array */
-    free_command(command);
     return macro_data;
+}
+
+
+
+
+void MacroLayout(char** orderArray, MacroData macro_data) {
+    FILE* outputFile = fopen("output.am", "w");
+
+    if (outputFile == NULL) {
+        fprintf(stderr, "Failed to create the output file.\n");
+        return;
     }
 
-void MacroLayout(char** command, MacroData macro_data) {
-    int i = 0;
-
-    while (command[i] != NULL) {
-        if (strcmp(command[i], "mcro") == 0) {
-            char* macro_name = command[i + 1];
+    for (int i = 0; orderArray[i] != NULL; i++) {
+        if (strcmp(orderArray[i], "mcro") == 0) {
+            char* macro_name = orderArray[i + 1];
             int j = 0;
             int macro_index = -1;
 
@@ -245,17 +285,22 @@ void MacroLayout(char** command, MacroData macro_data) {
             if (macro_index != -1) {
                 int k = 0;
                 while (macro_data.macro_bodies[macro_index][k] != NULL) {
-                    command[i++] = macro_data.macro_bodies[macro_index][k];
+                    fprintf(outputFile, "%s\n", macro_data.macro_bodies[macro_index][k]);
                     k++;
                 }
             } else {
-                i += 2;
+                i++;
             }
         } else {
-            i++;
+            fprintf(outputFile, "%s\n", orderArray[i]);
         }
     }
+
+    fclose(outputFile);
 }
+
+
+
 
 void FreeMacroData(MacroData macroData) {
     /* Free macro names */
@@ -283,14 +328,6 @@ void FreeMacroData(MacroData macroData) {
     free(macroData.macro_body_counts);
 }
 
-void free_command(char** command) {
-    int i;
-    for (i = 0; command[i] != NULL; i++){
-        /* printf("- parse_command - %p, '%s'\n", command[i], command[i]); */
-        free(command[i]);
-    }
-    free(command);
-}
 
 
 
