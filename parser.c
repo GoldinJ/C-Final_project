@@ -145,6 +145,7 @@ MacroData NameBodyExtractor(FILE* fptr) {
     int macro_count = 0;
     int line_count = 0;
     char* line;
+    int body_count;
     char** macro_names = malloc(10 * sizeof(char*));
     char*** macro_bodies = malloc(10 * sizeof(char**));
     int* macro_body_counts = malloc(10 * sizeof(int));
@@ -161,7 +162,7 @@ MacroData NameBodyExtractor(FILE* fptr) {
             strcpy(macro_name, line + 5); // Update to extract name after "mcro"
 
             /* Initialize macro body*/
-            int body_count = 0;
+             body_count = 0;
             char** macro_body = malloc(10 * sizeof(char*));
 
             if (macro_name == NULL || macro_body == NULL) {
@@ -308,12 +309,15 @@ void macro_layout(MacroData macro_data, const char* filename) {
 
     char line[MAX_LINE_LEN];
     char* trimmed_line;
+    int line_contains_macro;
+    int name_length;
+    int position_index;
 
     while (fgets(line, sizeof(line), file) != NULL) {
         trimmed_line = line;
         strip(trimmed_line);
 
-        int line_contains_macro = 0;
+        line_contains_macro = 0;
 
         for (i = 0; macro_data.macro_names[i] != NULL; i++) {
             char* macro_name = macro_data.macro_names[i];
@@ -323,8 +327,8 @@ void macro_layout(MacroData macro_data, const char* filename) {
             char* position = strstr(trimmed_line, macro_name);
             if (position != NULL) {
                 line_contains_macro = 1;
-                int name_length = strlen(macro_name);
-                int position_index = position - trimmed_line;
+                name_length = strlen(macro_name);
+                position_index = position - trimmed_line;
 
                 /* Write the line until the position of the macro name */
                 trimmed_line[position_index] = '\0';
