@@ -359,7 +359,7 @@ void macro_layout(MacroData macro_data, const char* filename) {
                 /* Move the position to the end of the macro name */
                 position += name_length;
 
-                // Write the rest of the line after the macro name
+                /* Write the rest of the line after the macro name*/
                 fputs(position, temp_file);
                 break;
             }
@@ -431,8 +431,8 @@ int main() {
 
     return 0;
 }
-*/
 
+*/
 
 /*int main (){
 
