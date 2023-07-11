@@ -146,6 +146,7 @@ MacroData NameBodyExtractor(FILE* fptr) {
     int line_count = 0;
     char* line;
     int body_count;
+    char** macro_body;
     char** macro_names = malloc(10 * sizeof(char*));
     char*** macro_bodies = malloc(10 * sizeof(char**));
     int* macro_body_counts = malloc(10 * sizeof(int));
@@ -159,11 +160,15 @@ MacroData NameBodyExtractor(FILE* fptr) {
         if (strncmp(line, "mcro", 4) == 0) {
             /* Extract macro name */
             char* macro_name = malloc((strlen(line) - 4 + 1) * sizeof(char));
-            strcpy(macro_name, line + 5); // Update to extract name after "mcro"
+            char* name_start = line + 4;
+            while (*name_start != '\0' && isspace(*name_start)) {
+                name_start++;
+            }
+            strcpy(macro_name, name_start);
 
-            /* Initialize macro body*/
-             body_count = 0;
-            char** macro_body = malloc(10 * sizeof(char*));
+            /* Initialize macro body */
+            body_count = 0;
+            macro_body = malloc(10 * sizeof(char*));
 
             if (macro_name == NULL || macro_body == NULL) {
                 printf("Order_array: Memory allocation failed");
@@ -176,7 +181,7 @@ MacroData NameBodyExtractor(FILE* fptr) {
                 strcpy(macro_body[body_count], line);
                 body_count++;
 
-                /* Resize macro_body array if necessary*/
+                /* Resize macro_body array if necessary */
                 if (body_count % 10 == 0) {
                     macro_body = realloc(macro_body, (body_count + 10) * sizeof(char*));
                     if (macro_body == NULL) {
@@ -188,14 +193,14 @@ MacroData NameBodyExtractor(FILE* fptr) {
 
             macro_body[body_count] = NULL;  /* Add NULL terminator to the macro body array */
 
-            /* Store macro name, body, and count in MacroData*/
+            /* Store macro name, body, and count in MacroData */
             macro_names[macro_count] = macro_name;
             macro_bodies[macro_count] = macro_body;
             macro_body_counts[macro_count] = body_count;
 
             macro_count++;
 
-            /* Resize arrays if necessary*/
+            /* Resize arrays if necessary */
             if (macro_count % 10 == 0) {
                 macro_names = realloc(macro_names, (macro_count + 10) * sizeof(char*));
                 macro_bodies = realloc(macro_bodies, (macro_count + 10) * sizeof(char**));
@@ -224,7 +229,6 @@ MacroData NameBodyExtractor(FILE* fptr) {
 
 
 
-
 void freeNameAndBody(MacroData macro_data) {
     int i,j;
     for ( i = 0; macro_data.macro_names[i] != NULL; i++) {
@@ -244,18 +248,23 @@ void freeNameAndBody(MacroData macro_data) {
 
 /*Erase the lines that start with "mcro" or "endmcro" from the file*/
 void line_eraser(const char* filename) {
+
     int i;
+    FILE* output_file;
+    /* Create a 2D array to store file content*/
+    char file_content[MAX_LINE_LEN][MAX_LINE_LEN];
+    int line_count = 0;
+    char* line;
+
+
     FILE* input_file = fopen(filename, "r");
     if (input_file == NULL) {
         printf("Failed to open file: %s\n", filename);
         return;
     }
 
-    /* Create a 2D array to store file content*/
-    char file_content[MAX_LINE_LEN][MAX_LINE_LEN];
-    int line_count = 0;
 
-    char* line;
+
     while ((line = get_line(input_file)) != NULL) {
         if (strncmp(line, "mcro", 4) == 0 || strcmp(line, "endmcro") == 0) {
             /* Skip lines starting with "mcro" and "endmcro" */
@@ -275,7 +284,7 @@ void line_eraser(const char* filename) {
     fclose(input_file);
 
     /* Rewrite the file with the modified content*/
-    FILE* output_file = fopen(filename, "w");
+    output_file = fopen(filename, "w");
     if (output_file == NULL) {
         printf("Failed to open file for rewriting: %s\n", filename);
         return;
@@ -293,25 +302,27 @@ void line_eraser(const char* filename) {
 
 
 void macro_layout(MacroData macro_data, const char* filename) {
-    int i, j;
+    int i;
+    FILE* temp_file;
+    FILE* output_file;
+    char line[MAX_LINE_LEN];
+    char* trimmed_line;
+    int line_contains_macro;
+    int name_length;
+    int position_index;
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
         printf("Failed to open file: %s\n", filename);
         return;
     }
 
-    FILE* temp_file = fopen("temp.txt", "w");
+    temp_file = fopen("temp.txt", "w");
     if (temp_file == NULL) {
         printf("Failed to open temporary file.\n");
         fclose(file);
         return;
     }
 
-    char line[MAX_LINE_LEN];
-    char* trimmed_line;
-    int line_contains_macro;
-    int name_length;
-    int position_index;
 
     while (fgets(line, sizeof(line), file) != NULL) {
         trimmed_line = line;
@@ -370,7 +381,7 @@ void macro_layout(MacroData macro_data, const char* filename) {
     fclose(temp_file);
 
     /* Rewrite the original file with the content of the temporary file */
-    FILE* output_file = fopen(filename, "w");
+    output_file = fopen(filename, "w");
     if (output_file == NULL) {
         printf("Failed to open file for rewriting: %s\n", filename);
         return;
