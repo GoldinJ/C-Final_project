@@ -367,7 +367,7 @@ void macro_layout(MacroData macro_data, const char* filename) {
 
         /* Write the line as it is if no macro name found */
         if (!line_contains_macro) {
-            // Trim leading whitespace characters, including tabs
+            /* Trim leading whitespace characters, including tabs */
             while (*trimmed_line != '\0' && isspace(*trimmed_line))
                 trimmed_line++;
 
