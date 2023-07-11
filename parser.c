@@ -145,8 +145,6 @@ MacroData NameBodyExtractor(FILE* fptr) {
     int macro_count = 0;
     int line_count = 0;
     char* line;
-    int body_count;
-    char** macro_body;
     char** macro_names = malloc(10 * sizeof(char*));
     char*** macro_bodies = malloc(10 * sizeof(char**));
     int* macro_body_counts = malloc(10 * sizeof(int));
@@ -167,8 +165,8 @@ MacroData NameBodyExtractor(FILE* fptr) {
             strcpy(macro_name, name_start);
 
             /* Initialize macro body */
-            body_count = 0;
-            macro_body = malloc(10 * sizeof(char*));
+            int body_count = 0;
+            char** macro_body = malloc(10 * sizeof(char*));
 
             if (macro_name == NULL || macro_body == NULL) {
                 printf("Order_array: Memory allocation failed");
@@ -229,6 +227,7 @@ MacroData NameBodyExtractor(FILE* fptr) {
 
 
 
+
 void freeNameAndBody(MacroData macro_data) {
     int i,j;
     for ( i = 0; macro_data.macro_names[i] != NULL; i++) {
@@ -244,58 +243,74 @@ void freeNameAndBody(MacroData macro_data) {
 }
 
 
-
-
-/*Erase the lines that start with "mcro" or "endmcro" from the file*/
 void line_eraser(const char* filename) {
-
-    int i;
-    FILE* output_file;
-    /* Create a 2D array to store file content*/
-    char file_content[MAX_LINE_LEN][MAX_LINE_LEN];
-    int line_count = 0;
-    char* line;
-
-
     FILE* input_file = fopen(filename, "r");
     if (input_file == NULL) {
         printf("Failed to open file: %s\n", filename);
         return;
     }
 
+    FILE* output_file = fopen("temp.txt", "w");
+    if (output_file == NULL) {
+        printf("Failed to open temporary file.\n");
+        fclose(input_file);
+        return;
+    }
 
+    char* line;
+    int inside_macro = 0;
 
     while ((line = get_line(input_file)) != NULL) {
-        if (strncmp(line, "mcro", 4) == 0 || strcmp(line, "endmcro") == 0) {
-            /* Skip lines starting with "mcro" and "endmcro" */
+        if (strncmp(line, "mcro", 4) == 0) {
+            /* Skip lines starting with "mcro" and set inside_macro flag to true */
+            inside_macro = 1;
+            free(line);
+            continue;
+        } else if (strcmp(line, "endmcro") == 0) {
+            /* Skip lines starting with "endmcro" and reset inside_macro flag to false */
+            inside_macro = 0;
             free(line);
             continue;
         }
-        strncpy(file_content[line_count], line, MAX_LINE_LEN - 1);
-        file_content[line_count][MAX_LINE_LEN - 1] = '\0';
-        line_count++;
-        free(line);
-        if (line_count >= MAX_LINE_LEN) {
-            printf("Maximum line count exceeded.\n");
-            break;
+
+        if (!inside_macro) {
+            /* Write non-macro lines to the temporary file */
+            fputs(line, output_file);
+            fputc('\n', output_file);
         }
+
+        free(line);
     }
 
     fclose(input_file);
+    fclose(output_file);
 
-    /* Rewrite the file with the modified content*/
+    /* Rewrite the original file with the content of the temporary file */
     output_file = fopen(filename, "w");
     if (output_file == NULL) {
         printf("Failed to open file for rewriting: %s\n", filename);
         return;
     }
 
-    for ( i = 0; i < line_count; i++) {
-        fputs(file_content[i], output_file);
+    FILE* temp_file = fopen("temp.txt", "r");
+    if (temp_file == NULL) {
+        printf("Failed to open temporary file.\n");
+        fclose(output_file);
+        return;
+    }
+
+    while ((line = get_line(temp_file)) != NULL) {
+        fputs(line, output_file);
         fputc('\n', output_file);
+        free(line);
     }
 
     fclose(output_file);
+    fclose(temp_file);
+
+    /* Clear the content of the temporary file for future use */
+    temp_file = fopen("temp.txt", "w");
+    fclose(temp_file);
 
     printf("Lines starting with 'mcro' and 'endmcro' have been deleted from the file: %s\n", filename);
 }
@@ -303,13 +318,14 @@ void line_eraser(const char* filename) {
 
 void macro_layout(MacroData macro_data, const char* filename) {
     int i;
-    FILE* temp_file;
     FILE* output_file;
+    FILE* temp_file;
     char line[MAX_LINE_LEN];
     char* trimmed_line;
     int line_contains_macro;
     int name_length;
     int position_index;
+
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
         printf("Failed to open file: %s\n", filename);
@@ -324,13 +340,14 @@ void macro_layout(MacroData macro_data, const char* filename) {
     }
 
 
+
     while (fgets(line, sizeof(line), file) != NULL) {
         trimmed_line = line;
         strip(trimmed_line);
 
         line_contains_macro = 0;
 
-        for (i = 0; macro_data.macro_names[i] != NULL; i++) {
+        for ( i = 0; macro_data.macro_names[i] != NULL; i++) {
             char* macro_name = macro_data.macro_names[i];
             char* macro_body = macro_data.macro_bodies[i][0];
 
@@ -359,7 +376,7 @@ void macro_layout(MacroData macro_data, const char* filename) {
                 /* Move the position to the end of the macro name */
                 position += name_length;
 
-                /* Write the rest of the line after the macro name*/
+                // Write the rest of the line after the macro name
                 fputs(position, temp_file);
                 break;
             }
@@ -367,7 +384,7 @@ void macro_layout(MacroData macro_data, const char* filename) {
 
         /* Write the line as it is if no macro name found */
         if (!line_contains_macro) {
-            /* Trim leading whitespace characters, including tabs */
+            // Trim leading whitespace characters, including tabs
             while (*trimmed_line != '\0' && isspace(*trimmed_line))
                 trimmed_line++;
 
@@ -380,10 +397,14 @@ void macro_layout(MacroData macro_data, const char* filename) {
     fclose(file);
     fclose(temp_file);
 
+    /* Create a new filename with .am extension */
+    char new_filename[MAX_LINE_LEN];
+    snprintf(new_filename, sizeof(new_filename), "%s.am", filename);
+
     /* Rewrite the original file with the content of the temporary file */
-    output_file = fopen(filename, "w");
+    output_file = fopen(new_filename, "w");
     if (output_file == NULL) {
-        printf("Failed to open file for rewriting: %s\n", filename);
+        printf("Failed to create file: %s\n", new_filename);
         return;
     }
 
@@ -405,8 +426,10 @@ void macro_layout(MacroData macro_data, const char* filename) {
     temp_file = fopen("temp.txt", "w");
     fclose(temp_file);
 
-    printf("Macro layout has been applied to the file: %s\n", filename);
+    printf("Macro layout has been applied. New file created: %s\n", new_filename);
 }
+
+
 
 
 
