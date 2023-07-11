@@ -421,6 +421,7 @@ int main() {
     }
 
     MacroData macro_data = NameBodyExtractor(file);
+    
     fclose(file);
 
     line_eraser(filename);
