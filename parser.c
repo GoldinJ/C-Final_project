@@ -427,6 +427,68 @@ void macro_layout(MacroData macro_data, const char* filename) {
 
     printf("Macro layout has been applied. New file created: %s\n", new_filename);
 }
+void File_rename(const char* filename) {
+    char* new_filename;
+    char* dot;
+    FILE* original_file;
+    FILE* new_file;
+    int ch;
+    size_t length;
+
+    /* Find the position of the first dot in the original file name */
+    dot = strchr(filename, '.');
+    if (dot == NULL) {
+        printf("Invalid file name.\n");
+        return;
+    }
+
+    /* Calculate the length of the portion before the dot */
+    length = dot - filename;
+
+    /* Allocate memory for the new file name */
+    new_filename = malloc((length + 8) * sizeof(char));  /* Additional 8 characters for ".am.txt" and null terminator */
+    if (new_filename == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    /* Copy the characters before the dot to the new file name */
+    strncpy(new_filename, filename, length);
+    new_filename[length] = '\0';
+
+    /* Concatenate ".am.txt" to the new file name */
+    strcat(new_filename, ".am.txt");
+
+    /* Open the original file for reading */
+    original_file = fopen(filename, "r");
+    if (original_file == NULL) {
+        printf("Failed to open the original file.\n");
+        free(new_filename);
+        return;
+    }
+
+    /* Open the new file for writing */
+    new_file = fopen(new_filename, "w");
+    if (new_file == NULL) {
+        printf("Failed to create the new file.\n");
+        fclose(original_file);
+        free(new_filename);
+        return;
+    }
+
+    /* Copy the content from the original file to the new file */
+    while ((ch = fgetc(original_file)) != EOF) {
+        fputc(ch, new_file);
+    }
+
+    /* Close the files */
+    fclose(original_file);
+    fclose(new_file);
+
+    printf("New file created: %s\n", new_filename);
+
+    free(new_filename);
+}
 
 
 
