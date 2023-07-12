@@ -15,10 +15,10 @@ encoder: encoder.o linkedlist.o parser.o utilities.o
 encoder.o: encoder.c encoder.h 
 	$(CC) $(CFLAGS) -c encoder.c
 
-parser: parser.o linkedlist.o
-	$(CC) $(CFLAGS) -o parser parser.o linkedlist.o
+parser: parser.o parser.h
+	$(CC) $(CFLAGS) -o parser parser.o
 
-parser.o: parser.c constants.h linkedlist.h errors.h parser.h
+parser.o: parser.c 
 	$(CC) $(CFLAGS) -c parser.c 
 
 linkedlist.o: linkedlist.c utilities.o linkedlist.h
