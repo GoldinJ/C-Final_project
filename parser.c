@@ -293,9 +293,10 @@ void line_eraser(const char* filename) {
     fclose(output_file);
 
     /* Rewrite the original file with the content of the temporary file */
-    output_file = fopen(filename, "w");
+    output_file = fopen(filename, "w+");
     if (output_file == NULL) {
         printf("Failed to open file for rewriting: %s\n", filename);
+        fclose(input_file);
         return;
     }
 
@@ -303,6 +304,7 @@ void line_eraser(const char* filename) {
     if (temp_file == NULL) {
         printf("Failed to open temporary file.\n");
         fclose(output_file);
+        fclose(input_file);
         return;
     }
 
@@ -316,7 +318,7 @@ void line_eraser(const char* filename) {
     fclose(temp_file);
 
     /* Clear the content of the temporary file for future use */
-    temp_file = fopen("temp.txt", "w");
+    temp_file = fopen("temp.txt", "w+");
     fclose(temp_file);
 
     printf("Lines starting with 'mcro' and 'endmcro' have been deleted from the file: %s\n", filename);
@@ -331,12 +333,9 @@ void macro_layout(MacroData macro_data, const char* filename) {
     int line_contains_macro;
     int name_length;
     int position_index;
+    char* position;
     char* macro_name;
     char** macro_body;
-    char* position;
-    char* body_line;
-    char new_filename[MAX_LINE_LEN];
-
 
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -344,7 +343,7 @@ void macro_layout(MacroData macro_data, const char* filename) {
         return;
     }
 
-    temp_file = fopen("temp.txt", "w");
+    temp_file = fopen("temp.txt", "w+");
     if (temp_file == NULL) {
         printf("Failed to open temporary file.\n");
         fclose(file);
@@ -382,7 +381,7 @@ void macro_layout(MacroData macro_data, const char* filename) {
                 /* Write the macro body */
                 for (j = 0; macro_body[j] != NULL; j++) {
                     /* Trim leading whitespace characters, including tabs */
-                    body_line = macro_body[j];
+                    char* body_line = macro_body[j];
                     while (*body_line != '\0' && isspace(*body_line))
                         body_line++;
 
@@ -415,20 +414,97 @@ void macro_layout(MacroData macro_data, const char* filename) {
     fclose(file);
     fclose(temp_file);
 
-    /* Create a new filename with .am extension */
-    strcpy(new_filename, filename);
-    strcat(new_filename, ".am");
-
-    /* Rename the temporary file to the new filename */
-    if (rename("temp.txt", new_filename) != 0) {
-        printf("Failed to rename the file.\n");
+    // Rewrite the original file with the content of the temporary file
+    FILE* output_file = fopen(filename, "w");
+    if (output_file == NULL) {
+        printf("Failed to open file for rewriting: %s\n", filename);
         return;
     }
 
-    printf("Macro layout has been applied. New file created: %s\n", new_filename);
+    temp_file = fopen("temp.txt", "r");
+    if (temp_file == NULL) {
+        printf("Failed to open temporary file.\n");
+        fclose(output_file);
+        return;
+    }
+
+    while (fgets(line, sizeof(line), temp_file) != NULL) {
+        fputs(line, output_file);
+    }
+
+    fclose(output_file);
+    fclose(temp_file);
+
+    // Clear the content of the temporary file
+    temp_file = fopen("temp.txt", "w");
+    fclose(temp_file);
+
+    printf("Macro layout has been applied. Temporary file created: temp.txt\n");
 }
 
 
+void File_rename(const char* filename) {
+    char* new_filename;
+    char* dot;
+    FILE* original_file;
+    FILE* new_file;
+    int ch;
+    size_t length;
+
+    /* Find the position of the first dot in the original file name */
+    dot = strchr(filename, '.');
+    if (dot == NULL) {
+        printf("Invalid file name.\n");
+        return;
+    }
+
+    /* Calculate the length of the portion before the dot */
+    length = dot - filename;
+
+    /* Allocate memory for the new file name */
+    new_filename = malloc((length + 8) * sizeof(char));  /* Additional 8 characters for ".am.txt" and null terminator */
+    if (new_filename == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    /* Copy the characters before the dot to the new file name */
+    strncpy(new_filename, filename, length);
+    new_filename[length] = '\0';
+
+    /* Concatenate ".am.txt" to the new file name */
+    strcat(new_filename, ".am.txt");
+
+    /* Open the original file for reading */
+    original_file = fopen(filename, "r");
+    if (original_file == NULL) {
+        printf("Failed to open the original file.\n");
+        free(new_filename);
+        return;
+    }
+
+    /* Open the new file for writing */
+    new_file = fopen(new_filename, "w");
+    if (new_file == NULL) {
+        printf("Failed to create the new file.\n");
+        fclose(original_file);
+        free(new_filename);
+        return;
+    }
+
+    /* Copy the content from the original file to the new file */
+    while ((ch = fgetc(original_file)) != EOF) {
+        fputc(ch, new_file);
+    }
+
+    /* Close the files */
+    fclose(original_file);
+    fclose(new_file);
+
+    printf("New file created: %s\n", new_filename);
+
+    free(new_filename);
+}
 
 
 
