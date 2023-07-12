@@ -336,6 +336,7 @@ void macro_layout(MacroData macro_data, const char* filename)
     char* position;
     char* macro_name;
     char** macro_body;
+    FILE* output_file;
 
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -376,7 +377,7 @@ void macro_layout(MacroData macro_data, const char* filename)
 
                 /* Write the trimmed line to the temporary file */
                 fputs(trimmed_line, temp_file);
-                fputc('\n', temp_file);
+                /* fputc('\n', temp_file); */
 
                 /* Write the macro body */
                 for (j = 0; macro_body[j] != NULL; j++) {
@@ -414,8 +415,8 @@ void macro_layout(MacroData macro_data, const char* filename)
     fclose(file);
     fclose(temp_file);
 
-    // Rewrite the original file with the content of the temporary file
-    FILE* output_file = fopen(filename, "w");
+    /*Rewrite the original file with the content of the temporary file */
+    output_file = fopen(filename, "w");
     if (output_file == NULL) {
         printf("Failed to open file for rewriting: %s\n", filename);
         return;
@@ -435,7 +436,7 @@ void macro_layout(MacroData macro_data, const char* filename)
     fclose(output_file);
     fclose(temp_file);
 
-    // Clear the content of the temporary file
+    /* // Clear the content of the temporary file */
     temp_file = fopen("temp.txt", "w");
     fclose(temp_file);
 
@@ -510,10 +511,10 @@ void File_rename(const char* filename) {
 }
 
 
-/*
+
 int main() {
-    const char* original_file = "x.as";
-    const char* renamed_file = "x.am";
+    const char* original_file = "ps.as";
+    const char* renamed_file = "ps.am";
     FILE* file;
     MacroData macro_data;
 
@@ -537,7 +538,7 @@ int main() {
 
     return 0;
 }
-*/
+
 
 
 /*int main (){
