@@ -446,7 +446,7 @@ void File_rename(const char* filename) {
     length = dot - filename;
 
     /* Allocate memory for the new file name */
-    new_filename = malloc((length + 8) * sizeof(char));  /* Additional 8 characters for ".am.txt" and null terminator */
+    new_filename = malloc((length + 4) * sizeof(char));  /* Additional 4 characters for ".as" and null terminator */
     if (new_filename == NULL) {
         printf("Memory allocation failed.\n");
         return;
@@ -456,8 +456,8 @@ void File_rename(const char* filename) {
     strncpy(new_filename, filename, length);
     new_filename[length] = '\0';
 
-    /* Concatenate ".am.txt" to the new file name */
-    strcat(new_filename, ".am.txt");
+    /* Concatenate ".as" to the new file name */
+    strcat(new_filename, ".am");
 
     /* Open the original file for reading */
     original_file = fopen(filename, "r");
@@ -485,39 +485,41 @@ void File_rename(const char* filename) {
     fclose(original_file);
     fclose(new_file);
 
-    printf("New file created: %s\n", new_filename);
+    printf("File renamed: %s\n", new_filename);
 
     free(new_filename);
 }
 
 
-
-
-
 /*
 int main() {
-    const char* filename = "x.txt";
+    const char* original_file = "x.as";
+    const char* renamed_file = "x.am";
+    FILE* file;
+    MacroData macro_data;
 
-    FILE* file = fopen(filename, "r");
+    File_rename(original_file);
+
+    file = fopen(renamed_file, "r");
     if (file == NULL) {
-        printf("Failed to open file: %s\n", filename);
+        printf("Failed to open the file.\n");
         return 1;
     }
 
-    MacroData macro_data = NameBodyExtractor(file);
-    
+    macro_data = NameBodyExtractor(file);
+
     fclose(file);
 
-    line_eraser(filename);
+    macro_layout(macro_data, renamed_file);
 
-    macro_layout(macro_data, filename);
+    line_eraser(renamed_file);
 
     freeNameAndBody(macro_data);
 
     return 0;
 }
-
 */
+
 
 /*int main (){
 
