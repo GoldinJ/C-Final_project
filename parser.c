@@ -1,6 +1,4 @@
-#include "constants.h"
 #include "parser.h"
-#include "errors.h"
 
 void strip(char *str) {
     int len = strlen(str);
@@ -116,8 +114,6 @@ int validate_syntax(char* line) {
     return TRUE;
 }
 
-
-
 char** parse_command(char* line){
     
     int i=0;
@@ -138,6 +134,17 @@ char** parse_command(char* line){
     return command;
 }
 
+void free_command(char **command){
+    int i;
+
+    if(command == NULL)
+        return;
+
+    for(i=0; command[i]!= NULL; i++)
+        free(command[i]);
+
+    free(command);
+}
 
 /*Finds the name of each macro and body of each macro and stores them in MacroData struct */
 MacroData NameBodyExtractor(FILE* fptr) {
@@ -228,9 +235,6 @@ MacroData NameBodyExtractor(FILE* fptr) {
     return macro_data;
 }
 
-
-
-
 void freeNameAndBody(MacroData macro_data) {
     int i,j;
     for ( i = 0; macro_data.macro_names[i] != NULL; i++) {
@@ -244,7 +248,6 @@ void freeNameAndBody(MacroData macro_data) {
     free(macro_data.macro_names);
     free(macro_data.macro_body_counts);
 }
-
 
 void line_eraser(const char* filename) {
     char* line;
@@ -322,7 +325,6 @@ void line_eraser(const char* filename) {
     printf("Lines starting with 'mcro' and 'endmcro' have been deleted from the file: %s\n", filename);
 }
 
-
 void macro_layout(MacroData macro_data, const char* filename) {
     int i, j;
     FILE* temp_file;
@@ -371,13 +373,13 @@ void macro_layout(MacroData macro_data, const char* filename) {
                 /* Write the line until the position of the macro name */
                 trimmed_line[position_index] = '\0';
 
-                /* Trim leading whitespace characters, including tabs */
+                /* Trim leading whitespace characters, including tabs*/
                 while (*trimmed_line != '\0' && isspace(*trimmed_line))
-                    trimmed_line++;
+                    trimmed_line++; 
 
                 /* Write the trimmed line to the temporary file */
                 fputs(trimmed_line, temp_file);
-                fputc('\n', temp_file);
+               /*  fputc('\n', temp_file); */
 
                 /* Write the macro body */
                 for (j = 0; macro_body[j] != NULL; j++) {
@@ -429,12 +431,9 @@ void macro_layout(MacroData macro_data, const char* filename) {
 }
 
 
-
-
-
-/*
-int main() {
-    const char* filename = "x.txt";
+/* int main() {
+    const char* filename = "ps.as";
+    MacroData macro_data;
 
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -442,7 +441,7 @@ int main() {
         return 1;
     }
 
-    MacroData macro_data = NameBodyExtractor(file);
+    macro_data = NameBodyExtractor(file);
     
     fclose(file);
 
@@ -454,8 +453,8 @@ int main() {
 
     return 0;
 }
+ */
 
-*/
 
 /*int main (){
 
