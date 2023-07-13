@@ -15,6 +15,12 @@ encoder: encoder.o linkedlist.o parser.o utilities.o
 encoder.o: encoder.c encoder.h 
 	$(CC) $(CFLAGS) -c encoder.c
 
+macro: macro.o parser.o hashtable.o utilities.o
+	$(CC) $(CFLAGS) -o macro macro.o parser.o hashtable.o utilities.o
+
+macro.o: macro.c macro.h 
+	$(CC) $(CFLAGS) -c macro.c
+
 parser: parser.o parser.h
 	$(CC) $(CFLAGS) -o parser parser.o
 
@@ -40,4 +46,4 @@ leak-check:
 	valgrind --leak-check=full --track-origins=yes ./assembler ps
 
 clean:
-	rm -f assembler encoder parser debug *.o *.ent *.ext *.ob
+	rm -f assembler encoder parser macro debug *.o *.ent *.ext *.ob

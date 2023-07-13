@@ -25,10 +25,28 @@ void print_last_12_bits(unsigned int num) {
 }
 
 char* duplicateString(const char* source) {
-    size_t length = strlen(source);
-    char* destination = (char*)malloc(length + 1);
+    size_t length;
+    char* destination = NULL;
+
+    if(source == NULL)
+        return NULL;
+        
+    length = strlen(source);
+    destination = (char*)malloc(length + 1);
     if (destination != NULL) {
         strcpy(destination, source);
     }
     return destination;
+}
+
+void appendString(char** list, int* size, const char* str) {
+    char** newList = (char**)realloc(list, (*size + 1) * sizeof(char*));
+    if (newList == NULL) {
+        fprintf(stderr, "appendString: Memory allocation failed!\n");
+        return;
+    }
+
+    newList[*size] = duplicateString(str);
+    list = newList;
+    *size += 1;
 }
