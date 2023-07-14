@@ -45,7 +45,15 @@ enum token_type{
 
 };
 
-enum node_type {NODE_ENTRY, NODE_EXTERN, NODE_FIRST_W, NODE_IMDT_DRCT_W, NODE_REG_W, NODE_DATA_W, NODE_STRING_W};
+enum node_type {
+    NODE_ENTRY, 
+    NODE_EXTERN, 
+    NODE_FIRST_W, 
+    NODE_IMDT_DRCT_W, 
+    NODE_REG_W,
+    NODE_DATA_W,
+    NODE_STRING_W
+};
 
 
 /*Defines a 12 bit machine word - the fisrt word of instruction*/
