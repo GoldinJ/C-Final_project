@@ -7,6 +7,7 @@
 char* int_to_Base64(int binary);
 void print_last_12_bits(unsigned int num);
 char* duplicateString(const char* source);
-void appendString(char** list, int* size, const char* str);
+void appendString(char*** list, int* size, const char* str);
+FILE *open_file(char* filename, char* extension, char* mode);
 #endif 
 

@@ -88,31 +88,6 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
     return TRUE;
 }
 
-FILE *open_file(char* filename, char* extension, char* mode){
-    FILE *fptr;
-    char* _filename = (char*)malloc(strlen(filename)+strlen(extension)+1);
-
-    if(_filename == NULL){
-        fprintf(stderr, "open_file: Memory allocation failed\n");
-        exit(1);                     
-    }
-
-    strcpy(_filename, filename);
-    strcat(_filename, extension);
-
-    fptr = fopen(_filename, mode);
-
-    if(fptr == NULL){
-        fprintf(stderr, "open_file: Failed to open - '%s'\n", _filename);
-        exit(1);
-    }
-
-    free(_filename);
-    
-    return fptr;
-               
-}
-
 void first_pass(FILE *fptr, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
     char *line;
     char *line_copy;
@@ -325,12 +300,11 @@ void encoder_use_case(FILE *fptr){
 
 int main(int argc, char *argv[]){
     FILE *fsrc;
-    char *fullpath = NULL;
     char *file_name = NULL;
     int i;
 
     if(argc == 1){
-        printf("No file detected.\n");
+        fprintf(stderr, "No input file detected.\n");
         exit(1);
     }
 
@@ -340,13 +314,11 @@ int main(int argc, char *argv[]){
             file_name = duplicateString(argv[i]);
             checkout_macros(file_name);
 
-            fullpath = strcat(argv[i], ".am");
-            fsrc = fopen(fullpath, "r");
+            fsrc = open_file(file_name, ".am", "r");
 
             if (fsrc == NULL){
-                fprintf(stderr, FILE_NOT_FOUND, fullpath);
+                fprintf(stderr, FILE_NOT_FOUND, "fullpath");
                 free(file_name);
-                free(fullpath);
                 continue;
             }
 
