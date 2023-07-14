@@ -32,6 +32,10 @@ void expand_macros(FILE *fsrc, char* filename){
 
     while((line = get_line(fsrc)) != NULL){
 
+        if(line[0] == '\0'){
+            continue;
+        }
+
         line_copy = duplicateString(line);
         instruction = parse_command(line_copy);
         
@@ -44,8 +48,7 @@ void expand_macros(FILE *fsrc, char* filename){
                 insert(macro_table, macro_name, macro_body);
 
             }
-            else if(get(macro_table, instruction[0]) != 0){
-                tmp = get(macro_table, instruction[0]);
+            else if((tmp = get(macro_table, instruction[0])) != 0){
 
                 for(i=0; tmp[i] != NULL; i++){
                     fprintf(fdst,"%s\n", tmp[i]);
@@ -54,7 +57,6 @@ void expand_macros(FILE *fsrc, char* filename){
                 tmp = NULL;
 
             }
-            
             else{
                 fprintf(fdst, "%s\n", line);
             
@@ -113,11 +115,11 @@ void checkout_macros(char* filename){
     free(full_path);
 }
 
-int main(){
+/* int main(){
 
     char *filename = "ps";
     checkout_macros(filename);
 
     return 0;
 
-}
+} */
