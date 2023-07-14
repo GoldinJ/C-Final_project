@@ -88,6 +88,31 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
     return TRUE;
 }
 
+FILE *open_file(char* filename, char* extension, char* mode){
+    FILE *fptr;
+    char* _filename = (char*)malloc(strlen(filename)+strlen(extension)+1);
+
+    if(_filename == NULL){
+        fprintf(stderr, "open_file: Memory allocation failed\n");
+        exit(1);                     
+    }
+
+    strcpy(_filename, filename);
+    strcat(_filename, extension);
+
+    fptr = fopen(_filename, mode);
+
+    if(fptr == NULL){
+        fprintf(stderr, "open_file: Failed to open - '%s'\n", _filename);
+        exit(1);
+    }
+
+    free(_filename);
+    
+    return fptr;
+               
+}
+
 void first_pass(FILE *fptr, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
     char *line;
     char *line_copy;
@@ -126,8 +151,6 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
     FILE *fextern = NULL;
     Node *tmp_node;
     Node *current_node = list->head;
-    char *fname_entry = NULL;
-    char *fname_ext = NULL;
 
     while (current_node != NULL)
     {
@@ -140,17 +163,18 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
         else
             (*IC)++;
 
-        if(label != NULL && !tmp_node->word->placeholder){
-            if ((int)(long)(get(entry_symbols, tmp_node->word->label) != 0)){
-                if(fentry == NULL){
-                    fname_entry = duplicateString(filename);
-                    fentry = fopen(strcat(fname_entry, ".ent"), "w");
-                }
-                fprintf(fentry, "%s\t%d\n", tmp_node->word->label, (int)(long)(get(symbol_table, tmp_node->word->label)));
-            }
-        }
+        if(label != NULL){
 
-        if (tmp_node->word->placeholder)
+            if(tmp_node->word->placeholder == FALSE){
+                if ((int)(long)(get(entry_symbols, tmp_node->word->label) != 0)){
+                    if(fentry == NULL){
+                        fentry = open_file(filename, ".ent", "w");
+                    }
+                    fprintf(fentry, "%s\t%d\n", tmp_node->word->label, (int)(long)(get(symbol_table, tmp_node->word->label)));
+                }
+            }
+
+            else if (tmp_node->word->placeholder == TRUE)
         {
 
             if ((int)(long)(get(external_symbols, label) != 0)){
@@ -158,8 +182,7 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
                 tmp_node->word->word.im_drct_w->src_operand = 0;
 
                 if(fextern == NULL){
-                    fname_ext = duplicateString(filename);
-                    fextern = fopen(strcat(fname_ext, ".ext"), "w");
+                    fextern = open_file(filename, ".ext", "w");
                 }
                     
                 fprintf(fextern, "%s\t%d\n", label, cnt+100);
@@ -171,8 +194,8 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
             tmp_node->word->word.im_drct_w->ARE = R;
             tmp_node->word->word.im_drct_w->src_operand = (int)(long)get(symbol_table, label);
         }
-
         
+        }
         cnt++;
         
     }
@@ -181,10 +204,6 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
         fclose(fentry);
     if (fextern!=NULL)
         fclose(fextern);
-    if (fname_entry != NULL)
-        free(fname_entry);
-    if (fname_ext != NULL)
-        free(fname_ext);
         
 }
 
@@ -192,7 +211,6 @@ void make_obj_file(LinkedList* lst, char* filename, int IC, int DC){
     FILE *fobj = NULL;
     Node* current = lst->head;
     Node* temp = NULL;
-    char *ob_filename;
     char *base64;
 
     if(EC > 0){
@@ -202,8 +220,7 @@ void make_obj_file(LinkedList* lst, char* filename, int IC, int DC){
     }
 
     if(fobj == NULL){
-            ob_filename = duplicateString(filename);
-            fobj = fopen(strcat(ob_filename, ".ob"), "w");
+            fobj = open_file(filename, ".ob", "w");
             fprintf(fobj, "%d %d\n", IC, DC);
         }
 
@@ -217,7 +234,6 @@ void make_obj_file(LinkedList* lst, char* filename, int IC, int DC){
     }
     
     if(fobj != NULL){
-        free(ob_filename);
         fclose(fobj);
     }
 
@@ -322,16 +338,19 @@ int main(int argc, char *argv[]){
         for(i = 1; i<argc; i++){
             
             file_name = duplicateString(argv[i]);
+            checkout_macros(file_name);
+
             fullpath = strcat(argv[i], ".am");
             fsrc = fopen(fullpath, "r");
 
             if (fsrc == NULL){
                 fprintf(stderr, FILE_NOT_FOUND, fullpath);
+                free(file_name);
+                free(fullpath);
                 continue;
             }
-            else
-                process_input(fsrc, file_name);
 
+            process_input(fsrc, file_name);
             free(file_name);
         }
 
