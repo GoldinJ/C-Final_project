@@ -7,8 +7,43 @@
 #define MAX_LABEL_LENGTH 100
 
 
+#define SET_TO_RED(msg) "\033[1;31m" msg "\033[0m"
+/*                           ==================================== Syntax Errors ====================================                                */
+#define ILLEGAL_CHARACTER_IN_LABEL SET_TO_RED("Error: ") "A label cannot begin with - '%c'\n"
+#define TOO_FEW_OPERANDS      SET_TO_RED("Error: ") "too few operands for - '%s' command\n"
+#define TOO_MANY_OPERANDS     SET_TO_RED("Error: ") "too many operands for - '%s' command\n"
+#define INVALID_OPERAND_TYPE  SET_TO_RED("Error: ") "Invalid operand type for '%s' command. Operand: %d\n"
+#define INVALID_LABEL_SYNTAX  SET_TO_RED("Error: ") "Invalid character - '%c' in label defenition\n"
+#define INVALID_LABEL_LENGTH  SET_TO_RED("Error: ") "Invalid label length - '%s'\n"
+#define INVALID_REGISTER      SET_TO_RED("Error: ") "Invalid register - '%s'\n"
+#define NOT_AN_INTEGER        SET_TO_RED("Error: ") "Is not an integer - '%s'\n"
+#define INVALID_SIGN          SET_TO_RED("Error: ") "Invalid sign for this operand type - '%c'\n"
+#define INVALID_INTEGER_SYNTAX SET_TO_RED("Error: ") "Invalid integer syntax - '%s'\n"
+#define IVALID_INTEGER_VALUE_TOO_BIG SET_TO_RED("Error: ") "Integer is too big - '%d', max allowed value is 1023\n"
+#define IVALID_INTEGER_VALUE_TOO_SMALL SET_TO_RED("Error: ") "Integer is too small - '%d', min allowed value is -1023\n"
 
 
+#define TOO_FEW_OPCODE      SET_TO_RED("Error: ") "too few operands for - '%s' command\n"
+#define DUPLICATE_LABEL SET_TO_RED("Error: ") "Duplicate label found in '%s'\n"
+#define INVALID_LABEL SET_TO_RED("Error: ") "Invalid label found in '%s'\n"
+#define INVALID_CHARACTER_IN_LABEL SET_TO_RED("Error: ") "Invalid character in the label - '%c'\n"
+#define LABEL_IS_RESERVED_WORD SET_TO_RED("Error: ") "Label is a reserved word - '%s'\n"
+#define INVALID_OPCODE_ERROR(opcode) printf(SET_TO_RED("Error: ") "Invalid opcode '%s' found in ", opcode)
+#define EMPTY_DATA_ERROR printf(SET_TO_RED("Error: ") "Data field is empty Found in ")
+#define INVALID_DATA_ERROR printf(SET_TO_RED("Error: ") "Invalid data Found in ")
+#define ILLEGAL_COMMA_ERROR printf(SET_TO_RED("Error: ") "Illegal comma after last number Found in ")
+#define INVALID_STRING_DEFINITION_ERROR printf(SET_TO_RED("Error: ") "String definition is wrong Found in ")
+#define INVALID_DATA_DIRECTIVE_ERROR printf(SET_TO_RED("Error: ") "Invalid .data directive Found in ")
+#define SEMICOLON_FOUND_ERROR printf(SET_TO_RED("Error: ") "Semicolon found in line Found in ")
+#define  MISSING_LABEL_ERROR printf(SET_TO_RED("Error: ") "Missing label after directive Found in ")
+#define INVALID_LABEL_ERROR printf(SET_TO_RED("Error: ") "Invalid label Found in ")
+#define DUPLICATE_LABEL_ERROR printf(SET_TO_RED("Error: ") "Duplicate label Found in ")
+
+
+
+/*                           ==================================== File Errors ====================================            */
+
+#define FILE_NOT_FOUND SET_TO_RED("Error: ") "File not found - '%s'\n"
 
 
 
@@ -21,7 +56,7 @@ int is_valid_label(char *line) {
     char ch;
     /* Check if line is empty*/
     if (line == NULL || *line == '\0') {
-        printf("Error:empty line found in ");
+        printf(ILLEGAL_CHARACTER_IN_LABEL, ' ');
         return 0;
     }
 
@@ -37,7 +72,7 @@ int is_valid_label(char *line) {
 
     /* Check label length*/
     if (label_len >= 32) {
-        printf("Error:Label exceeding 31 characters found in ");
+        printf(INVALID_LABEL_LENGTH, line);
         return 0;
     }
 
@@ -45,7 +80,7 @@ int is_valid_label(char *line) {
     for (i = 0; i < label_len - 1; i++) {
         ch = line[i];
         if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9'))) {
-            printf("Error:Label does not consist from letters or number found in ");
+            printf(INVALID_LABEL_SYNTAX, ch);
             return 0;
         }
     }
@@ -81,7 +116,7 @@ int is_single_label(char *line) {
         /* Check if the label already exists in the array */
         for (i = 0; i < num_labels; i++) {
             if (strcmp(label, labels[i]) == 0) {
-                printf("Error:duplicate label found in ");
+                printf(DUPLICATE_LABEL, label);
                 /* Found a duplicate label, print an error and return 0 */
                 return 0;
             }
@@ -93,6 +128,7 @@ int is_single_label(char *line) {
 
         return 1; /* Valid label found and stored */
     } else {
+        printf(INVALID_LABEL_SYNTAX, line[label_len]);
         return 1; /* Invalid label, assume the line is correct and return 1 */
     }
 }
@@ -146,7 +182,7 @@ int label_is_not_a_saved_word(char *line) {
     if (!is_reserved_word(label)) {
         return 1; /* Not a reserved word, return 1*/
     } else {
-        printf("Error:Invalid label found in ");
+        printf(INVALID_LABEL, label);
         return 0; /* Reserved word found, return 0*/
     }
 }
@@ -167,6 +203,8 @@ int is_valid_label_check(char *operand) {
 
     /* Check if operand exceeds 80 characters */
     if (strlen(operand) > 80) {
+        printf(INVALID_LABEL_LENGTH);
+
         return 0;
     }
 
@@ -181,6 +219,7 @@ int is_valid_label_check(char *operand) {
         } else if (isdigit(ch)) {
             has_digit = 1;
         } else {
+            printf(INVALID_CHARACTER_IN_LABEL, ch);
             return 0; /* Invalid character in the label */
         }
     }
@@ -190,11 +229,20 @@ int is_valid_label_check(char *operand) {
         /* Check if the label is not a reserved word */
         if (!is_reserved_word(operand)) {
             return 1; /* Valid label */
+        } else {
+            printf(LABEL_IS_RESERVED_WORD, operand);
         }
+    } else {
+        printf(INVALID_LABEL_SYNTAX);
     }
 
     return 0; /* Invalid label or a reserved word */
 }
+
+
+
+
+
 
 
 
@@ -332,7 +380,7 @@ int is_valid_operand_amount(char *line) {
     }
 
     if (token == NULL) {
-        printf("Error:Missing opcode after detective Found in ");
+        printf(TOO_FEW_OPCODE,token);
         return 0; /* Opcode not found or line contains only delimiters */
     }
 
@@ -344,19 +392,19 @@ int is_valid_operand_amount(char *line) {
         while ((token = strtok(NULL, delimiters)) != NULL) {
             num_operands++;
             if (num_operands > 2) {
-                printf("Error:Too many operands Found in ");
+                printf(TOO_MANY_OPERANDS , token);
                 return 0; /* Too many operands for mov, add, sub */
             }
             /* Check for valid operand based on the order (first or second) */
             if (num_operands == 1) {
                 if (!is_valid_register_check(token) && !is_valid_integer(token) && !is_valid_label_check(token)) {
-                    printf("Error: first operand is Invalid Found in ");
+                    printf(INVALID_OPERAND_TYPE, "mov/add/sub", token);
                     return 0; /* Invalid first operand */
                 }
                 strcpy(operand1, token);
             } else if (num_operands == 2) {
                 if (!is_valid_register_check(token) && !is_valid_label_check(token)) {
-                    printf("Error:Second operand is Invalid Found in ");
+                    printf(INVALID_OPERAND_TYPE, "mov/add/sub", token);
                     return 0; /* Invalid second operand */
                 }
                 strcpy(operand2, token);
@@ -371,11 +419,11 @@ int is_valid_operand_amount(char *line) {
         while ((token = strtok(NULL, delimiters)) != NULL) {
             num_operands++;
             if (num_operands > 2) {
-                printf("Error:Too many operands Found in ");
+                printf(TOO_MANY_OPERANDS,token);
                 return 0; /*Too many operands for cmp*/
             }
             if (!is_valid_register_check(token) && !is_valid_integer(token) && !is_valid_label_check(token)) {
-                printf("Error:Operand is invalid Found in ");
+                printf(INVALID_OPERAND_TYPE, "cmp", token);
                 return 0; /* Invalid operand*/
             }
             if (num_operands == 1) {
@@ -391,11 +439,11 @@ int is_valid_operand_amount(char *line) {
         /* Group 3: Check the second field for valid (LABEL or REGISTER or INTEGER) */
         token = strtok(NULL, delimiters); /* Get the second operand field */
         if (token == NULL) {
-            printf("Error:Missing second operand Found in ");
+            printf(TOO_FEW_OPERANDS,token);
             return 0; /* Missing second operand */
         }
         if (!is_valid_register_check(token) && !is_valid_label_check(token)) {
-            printf("Error:Invalid operand Found in ");
+            printf(INVALID_OPERAND_TYPE,token);
             return 0; /* Invalid operand */
         }
 
@@ -408,19 +456,19 @@ int is_valid_operand_amount(char *line) {
         while ((token = strtok(NULL, delimiters)) != NULL) {
             num_operands++;
             if (num_operands > 2) {
-                printf("Error:Too many operands Found in ");
+                printf(TOO_MANY_OPERANDS,token);
                 return 0; /* Too many operands for lea */
             }
             /* Check for valid operand based on the order (first or second) */
             if (num_operands == 1) {
                 if (!is_valid_label_check(token)) {
-                    printf("Error:Invalid operand Found in ");
+                    printf(INVALID_OPERAND_TYPE,token);
                     return 0; /* Invalid first operand (should be LABEL) */
                 }
                 strcpy(operand1, token);
             } else if (num_operands == 2) {
                 if (!is_valid_register_check(token) && !is_valid_label_check(token)) {
-                    printf("Error:Invalid second operand Found in ");
+                    printf(INVALID_OPERAND_TYPE,token);
                     return 0; /* Invalid second operand (should be LABEL or REGISTER) */
                 }
                 strcpy(operand2, token);
@@ -431,11 +479,11 @@ int is_valid_operand_amount(char *line) {
         /* Group 5: Check the first field for empty and the second field for valid (LABEL or REGISTER or INTEGER) */
         token = strtok(NULL, delimiters); /* Get the second operand field */
         if (token == NULL) {
-            printf("Error:Missing second operands Found in ");
+            printf(TOO_FEW_OPERANDS,token);
             return 0; /* Missing second operand */
         }
         if (!is_valid_register_check(token) && !is_valid_integer(token) && !is_valid_label_check(token)) {
-            printf("Error:Invalid operand Found in ");
+            printf(INVALID_OPERAND_TYPE, "prn", token);
             return 0; /* Invalid operand */
         }
 
@@ -447,7 +495,7 @@ int is_valid_operand_amount(char *line) {
         return token == NULL ; /* No second operand should be present */
     } else {
         /* Invalid opcode */
-        printf("Error:Shouldn't contain an opcode Found in ");
+        INVALID_OPCODE_ERROR(token);
         return 0;
     }
 }
@@ -459,7 +507,7 @@ int is_valid_data(const char *str) {
 
     size_t len = strlen(str);
     if (len == 0) {
-        printf("Error:data field is empty Found in ");
+        EMPTY_DATA_ERROR;
         return 0; /* Empty data*/
     }
 
@@ -469,7 +517,7 @@ int is_valid_data(const char *str) {
 
         /* Check if strtol failed or if there is an invalid character after the number */
         if (str == endptr || (*endptr && *endptr != ',' && !isspace(*endptr))) {
-            printf("Error:invalid data Found in ");
+            INVALID_DATA_ERROR;
             return 0; /* Invalid number or invalid character*/
         }
 
@@ -483,7 +531,7 @@ int is_valid_data(const char *str) {
 
     /* Check if the last character processed is a comma */
     if (*(str - 1) == ',') {
-        printf("Error:Illigal comma after last number Found in ");
+        ILLEGAL_COMMA_ERROR;
         return 0; /* Comma after the last number is not allowed */
     }
 
@@ -531,7 +579,7 @@ int is_directive(char* line) {
             /* Check if the content inside the double quotes consists of letters only*/
             while (*line != '\0' && *line != '\"') {
                 if (!isalpha(*line)) {
-                    printf("Error:String definition is wrong Found in ");
+                    INVALID_STRING_DEFINITION_ERROR;
                     return 0; /* Invalid character inside the string*/
                 }
                 line++;
@@ -562,7 +610,10 @@ int is_directive(char* line) {
 
         /* Check if the next characters are valid data*/
         if (is_valid_data(line)) {
-            return 1; /* Valid .data directive*/
+            return 1; /* Valid .data directive */
+        } else {
+            INVALID_DATA_DIRECTIVE_ERROR;
+            return 0; /* Invalid .data directive */
         }
     }
 
@@ -586,7 +637,7 @@ int semicolon_displacement(char *line) {
     /* Search for semicolon ';' anywhere in the line*/
     while (*line != '\0') {
         if (*line == ';') {
-            printf("Error:Semicolon found in line Found in ");
+            SEMICOLON_FOUND_ERROR;
             return 0; /* Semicolon found anywhere but the beginning of the line*/
         }
         line++;
@@ -614,6 +665,7 @@ int valid_entry_extern(char *line) {
     /* Tokenize the line using spaces and tabs as delimiters */
     token = strtok(line, " \t");
     if (token == NULL) {
+        MISSING_LABEL_ERROR;
         return 0; /* Empty line, nothing to check */
     }
 
@@ -624,20 +676,20 @@ int valid_entry_extern(char *line) {
 
         /* Check if there is a second token */
         if (token == NULL) {
-            printf("Error:Missing label after directive Found in ");
+            MISSING_LABEL_ERROR;
             return 0; /* Missing label after ".entry" or ".extern" */
         }
 
         /* Check if the second token is a valid label */
         if (!is_valid_label_check(token)) {
-            printf("Error:Invalid label Found in ");
+            INVALID_LABEL_ERROR;
             return 0; /* Invalid label after ".entry" or ".extern" */
         }
 
         /* Check if the label already exists in the array */
         for (i = 0; i < num_all_labels; i++) {
             if (strcmp(all_labels[i], token) == 0) {
-                printf("Error:Duplicate label Found in ");
+                DUPLICATE_LABEL_ERROR;
                 return 0; /* Label already encountered */
             }
         }
@@ -720,7 +772,7 @@ int main() {
             "K: .data 22",              /*valid*/
             ".extern L3",               /*valid*/
 
-            "MAIN: mov @r1 , LNGTH",  /*Not valid label + ; */
+            "MAAAN: mov @r1 , LNGTH , @r4",  /*Not valid label + ; */
             ".entry LENGTH",               /*Not valid .entry label duplicate*/
             ".entry HE@LLO",               /*Not valid label*/
             "HELLO: mog @r3, @r7",         /*Not valid opcode*/
@@ -744,21 +796,21 @@ int main() {
 
 
     };
-    const char *filename = "TestFile.txt ";
-    char line[]="at line number:";
-    char v[]="Valid line";
+    char *filename = "TestFile.txt";
+    char line[] = "at line number:";
+    char v[] = "Valid line";
 
     int i;
     for (i = 0; i < sizeof(lines) / sizeof(lines[0]); i++) {
-        int valid = error_check(lines[i], "TestFile.txt", i );
-        if(valid)
-            printf("%d %s\n\n ",i, v);
+        int valid = error_check(lines[i], filename, i + 1);
+        if (valid)
+            printf("%d %s\n\n", i + 1, v);
         else
-            printf("%s %s %d\n\n",filename,line,i);
+            printf("%s %s %d\n\n", filename, line, i );
     }
 
     return 0;
-
 }
+
 
 
