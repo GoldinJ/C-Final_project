@@ -4,40 +4,29 @@
 #include <stdlib.h>
 
 #define MAX_LABELS 100
-#define MAX_LABEL_LENGTH 100
+#define MAX_LABEL_LENGTH 1024
+#define MAX_LABEL_LENGTH1 32
 
 
 #define SET_TO_RED(msg) "\033[1;31m" msg "\033[0m"
 /*                           ==================================== Syntax Errors ====================================                                */
-#define ILLEGAL_CHARACTER_IN_LABEL SET_TO_RED("Error: ") "A label cannot begin with - '%c'\n"
-#define TOO_FEW_OPERANDS      SET_TO_RED("Error: ") "too few operands for - '%s' command\n"
-#define TOO_MANY_OPERANDS     SET_TO_RED("Error: ") "too many operands for - '%s' command\n"
-#define INVALID_OPERAND_TYPE  SET_TO_RED("Error: ") "Invalid operand type for '%s' command. Operand: %d\n"
+#define ILLEGAL_CHARACTER_IN_LABEL SET_TO_RED("Error: ") "A label cannot contain - '%c'\n"
+#define TOO_FEW_OPERANDS     SET_TO_RED("Error: ") "too few operands \n"
+#define TOO_MANY_OPERANDS     SET_TO_RED("Error: ") "extra operand - '%s' found \n"
+#define INVALID_OPERAND_TYPE  SET_TO_RED("Error: ") "Invalid operand '%s' \n"
 #define INVALID_LABEL_SYNTAX  SET_TO_RED("Error: ") "Invalid character - '%c' in label defenition\n"
 #define INVALID_LABEL_LENGTH  SET_TO_RED("Error: ") "Invalid label length - '%s'\n"
-#define INVALID_REGISTER      SET_TO_RED("Error: ") "Invalid register - '%s'\n"
-#define NOT_AN_INTEGER        SET_TO_RED("Error: ") "Is not an integer - '%s'\n"
-#define INVALID_SIGN          SET_TO_RED("Error: ") "Invalid sign for this operand type - '%c'\n"
-#define INVALID_INTEGER_SYNTAX SET_TO_RED("Error: ") "Invalid integer syntax - '%s'\n"
-#define IVALID_INTEGER_VALUE_TOO_BIG SET_TO_RED("Error: ") "Integer is too big - '%d', max allowed value is 1023\n"
-#define IVALID_INTEGER_VALUE_TOO_SMALL SET_TO_RED("Error: ") "Integer is too small - '%d', min allowed value is -1023\n"
-
-
-#define TOO_FEW_OPCODE      SET_TO_RED("Error: ") "too few operands for - '%s' command\n"
+#define INVALID_STRING_DEFINITION_ERROR (SET_TO_RED("Error: ") "String definition is invalid %s ")
+#define EMPTY_DATA_FIELD    (SET_TO_RED("Error: ") "data field is NULL ")
+#define INVALID_DATA_CHAR    (SET_TO_RED("Error: ") "invalid character- %c ")
+#define INVALID_COMMA    (SET_TO_RED("Error: ") "invalid comma after the last number ")
+#define INVALID_SEMICOLON    (SET_TO_RED("Error: ") "Invalid ; placement %c ")
+#define MISSING_LABEL   (SET_TO_RED("Error: ") "Label is missing ")
+#define INVALID_LABEL   (SET_TO_RED("Error: ") "Invalid Label %s ")
+#define DUP_LABEL SET_TO_RED("Error: ") "Duplicate label '%s'\n"
+#define INVALID_OPCODES      SET_TO_RED("Error: ") "Invalid opcode - '%s' command\n"
 #define DUPLICATE_LABEL SET_TO_RED("Error: ") "Duplicate label found in '%s'\n"
-#define INVALID_LABEL SET_TO_RED("Error: ") "Invalid label found in '%s'\n"
-#define INVALID_CHARACTER_IN_LABEL SET_TO_RED("Error: ") "Invalid character in the label - '%c'\n"
 #define LABEL_IS_RESERVED_WORD SET_TO_RED("Error: ") "Label is a reserved word - '%s'\n"
-#define INVALID_OPCODE_ERROR(opcode) printf(SET_TO_RED("Error: ") "Invalid opcode '%s' found in ", opcode)
-#define EMPTY_DATA_ERROR printf(SET_TO_RED("Error: ") "Data field is empty Found in ")
-#define INVALID_DATA_ERROR printf(SET_TO_RED("Error: ") "Invalid data Found in ")
-#define ILLEGAL_COMMA_ERROR printf(SET_TO_RED("Error: ") "Illegal comma after last number Found in ")
-#define INVALID_STRING_DEFINITION_ERROR printf(SET_TO_RED("Error: ") "String definition is wrong Found in ")
-#define INVALID_DATA_DIRECTIVE_ERROR printf(SET_TO_RED("Error: ") "Invalid .data directive Found in ")
-#define SEMICOLON_FOUND_ERROR printf(SET_TO_RED("Error: ") "Semicolon found in line Found in ")
-#define  MISSING_LABEL_ERROR printf(SET_TO_RED("Error: ") "Missing label after directive Found in ")
-#define INVALID_LABEL_ERROR printf(SET_TO_RED("Error: ") "Invalid label Found in ")
-#define DUPLICATE_LABEL_ERROR printf(SET_TO_RED("Error: ") "Duplicate label Found in ")
 
 
 
@@ -49,38 +38,40 @@
 
 
 /*Function to check if a given string is a valid label and doesnt exceed 31 characters*/  /*DONE*/
-int is_valid_label(char *line) {
+
+
+int is_valid_label( char *line) {
     char *label_end;
     int label_len;
     int i;
     char ch;
-    /* Check if line is empty*/
+
+    /* Check if line is empty */
     if (line == NULL || *line == '\0') {
-        printf(ILLEGAL_CHARACTER_IN_LABEL, ' ');
         return 0;
     }
 
-    /* Find the first occurrence of ':'*/
+    /* Find the first occurrence of ':' */
     label_end = strchr(line, ':');
     if (label_end == NULL) {
-        /* No label found, so it's not an error*/
+        /* No label found, so it's not an error */
         return 1;
     }
 
-    /* Calculate the length of the label (including the colon ':')*/
-    label_len = label_end - line + 1;
+    /* Calculate the length of the label (excluding the colon ':') */
+    label_len = label_end - line;
 
-    /* Check label length*/
-    if (label_len >= 32) {
-        printf(INVALID_LABEL_LENGTH, line);
+    /* Check label length */
+    if (label_len >= MAX_LABEL_LENGTH1) {
+        printf(INVALID_LABEL_LENGTH,line);
         return 0;
     }
 
-    /* Check label characters*/
-    for (i = 0; i < label_len - 1; i++) {
+    /* Check label characters */
+    for (i = 0; i < label_len; i++) {
         ch = line[i];
         if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9'))) {
-            printf(INVALID_LABEL_SYNTAX, ch);
+            printf(ILLEGAL_CHARACTER_IN_LABEL, ch);
             return 0;
         }
     }
@@ -88,8 +79,9 @@ int is_valid_label(char *line) {
     return 1;
 }
 
+
 /* Array to hold labels found in the program */
-static char labels[MAX_LABELS][MAX_LABEL_LENGTH];
+static char labels[MAX_LABELS][MAX_LABELS];
 static int num_labels = 0;
 
 
@@ -161,31 +153,40 @@ int is_reserved_word(char *word) {
 
 
 /*Function to check if the label is not a saved word*/                                    /*DONE*/
+/* Function to check if the label is not a saved word */
 int label_is_not_a_saved_word(char *line) {
     int label_len;
     char *colon_pos;
-    char label[32];
+    char label[MAX_LABEL_LENGTH];
 
-
-    /* Check if the line contains ':' (colon)*/
+    /* Check if the line contains ':' (colon) */
     colon_pos = strchr(line, ':');
     if (colon_pos == NULL) {
-        return 1; /* No ':' found, no label in the line, return 1*/
+        return 1; /* No ':' found, no label in the line, return 1 */
     }
 
-    /* Store the label (token before the ':' in the line)*/
+    /* Calculate the length of the label (excluding the colon ':') */
     label_len = colon_pos - line;
-    strncpy(label, line, label_len);
-    label[label_len] = '\0';
 
-    /* Check if the stored label is not a reserved word*/
+    /* Check if the label length is more than 10 characters */
+    if (label_len > 10) {
+        return 1; /* Return 1 if the label length is > 10 */
+    }
+
+    /* Copy the label (without colon) from the input line */
+    strncpy(label, line, label_len);
+    label[label_len] = '\0'; /* Null-terminate the label*/
+
+    /* Check if the stored label is not a reserved word */
     if (!is_reserved_word(label)) {
-        return 1; /* Not a reserved word, return 1*/
+        return 1; /* Not a reserved word, return 1 */
     } else {
-        printf(INVALID_LABEL, label);
-        return 0; /* Reserved word found, return 0*/
+        printf(LABEL_IS_RESERVED_WORD,label);
+        return 0; /* Reserved word found, return 0 */
     }
 }
+
+
 
 
 
@@ -201,13 +202,6 @@ int is_valid_label_check(char *operand) {
         return 0;
     }
 
-    /* Check if operand exceeds 80 characters */
-    if (strlen(operand) > 80) {
-        printf(INVALID_LABEL_LENGTH);
-
-        return 0;
-    }
-
     /* Check label characters */
     has_letter = 0;
     has_digit = 0;
@@ -219,7 +213,6 @@ int is_valid_label_check(char *operand) {
         } else if (isdigit(ch)) {
             has_digit = 1;
         } else {
-            printf(INVALID_CHARACTER_IN_LABEL, ch);
             return 0; /* Invalid character in the label */
         }
     }
@@ -229,21 +222,11 @@ int is_valid_label_check(char *operand) {
         /* Check if the label is not a reserved word */
         if (!is_reserved_word(operand)) {
             return 1; /* Valid label */
-        } else {
-            printf(LABEL_IS_RESERVED_WORD, operand);
         }
-    } else {
-        printf(INVALID_LABEL_SYNTAX);
     }
 
     return 0; /* Invalid label or a reserved word */
 }
-
-
-
-
-
-
 
 
 /*Function to help is_valid_operand_amount*/
@@ -261,14 +244,12 @@ int is_valid_register_check(char *word) {
         }
     }
 
-
     return 0; /* Not a valid register*/
 }
 
 /*Function to help is_valid_operand_amount*/
 int is_valid_integer(char *word) {
     int i;
-    int value;
 
     /* Check if the word is empty*/
     if (word == NULL || *word == '\0') {
@@ -293,18 +274,8 @@ int is_valid_integer(char *word) {
         return 0;
     }
 
-    /* Convert the word to an integer */
-    value = atoi(word);
-
-    /* Check if the integer is between -1024 and 1024 */
-    if (value >= -1024 && value <= 1024) {
-        return 1; /* Valid integer within the range -1024 to 1024 */
-    }
-
-    return 0; /* Integer is not within the range */
+    return 1; /* Valid integer*/
 }
-
-
 
 /*Function to help is_valid_operand_amount*/
 int is_valid_opcode_check(char *word) {
@@ -380,7 +351,7 @@ int is_valid_operand_amount(char *line) {
     }
 
     if (token == NULL) {
-        printf(TOO_FEW_OPCODE,token);
+        printf(INVALID_OPCODES,token);
         return 0; /* Opcode not found or line contains only delimiters */
     }
 
@@ -392,25 +363,29 @@ int is_valid_operand_amount(char *line) {
         while ((token = strtok(NULL, delimiters)) != NULL) {
             num_operands++;
             if (num_operands > 2) {
-                printf(TOO_MANY_OPERANDS , token);
+                printf(TOO_MANY_OPERANDS, token);
                 return 0; /* Too many operands for mov, add, sub */
             }
             /* Check for valid operand based on the order (first or second) */
             if (num_operands == 1) {
                 if (!is_valid_register_check(token) && !is_valid_integer(token) && !is_valid_label_check(token)) {
-                    printf(INVALID_OPERAND_TYPE, "mov/add/sub", token);
+                    printf(INVALID_OPERAND_TYPE,token);
                     return 0; /* Invalid first operand */
                 }
                 strcpy(operand1, token);
             } else if (num_operands == 2) {
                 if (!is_valid_register_check(token) && !is_valid_label_check(token)) {
-                    printf(INVALID_OPERAND_TYPE, "mov/add/sub", token);
+                    printf(INVALID_OPERAND_TYPE,token);
                     return 0; /* Invalid second operand */
                 }
                 strcpy(operand2, token);
             }
         }
-        return num_operands >= 2; /* At least two operands required for mov, add, sub and operands must be different */
+        if (num_operands < 2) {
+            printf(TOO_FEW_OPERANDS);
+            return 0; /* Too few operands for mov, add, sub */
+        }
+        return num_operands >= 2 ; /* At least two operands required for mov, add, sub  */
     } else if (strcmp(token, "cmp") == 0) {
         /* Group 2: Check the first and second fields for valid (LABEL or REGISTER or INTEGER) */
         num_operands = 0;
@@ -419,11 +394,11 @@ int is_valid_operand_amount(char *line) {
         while ((token = strtok(NULL, delimiters)) != NULL) {
             num_operands++;
             if (num_operands > 2) {
-                printf(TOO_MANY_OPERANDS,token);
+                printf(TOO_MANY_OPERANDS, token);
                 return 0; /*Too many operands for cmp*/
             }
             if (!is_valid_register_check(token) && !is_valid_integer(token) && !is_valid_label_check(token)) {
-                printf(INVALID_OPERAND_TYPE, "cmp", token);
+                printf(INVALID_OPERAND_TYPE,token);
                 return 0; /* Invalid operand*/
             }
             if (num_operands == 1) {
@@ -439,7 +414,7 @@ int is_valid_operand_amount(char *line) {
         /* Group 3: Check the second field for valid (LABEL or REGISTER or INTEGER) */
         token = strtok(NULL, delimiters); /* Get the second operand field */
         if (token == NULL) {
-            printf(TOO_FEW_OPERANDS,token);
+
             return 0; /* Missing second operand */
         }
         if (!is_valid_register_check(token) && !is_valid_label_check(token)) {
@@ -456,7 +431,7 @@ int is_valid_operand_amount(char *line) {
         while ((token = strtok(NULL, delimiters)) != NULL) {
             num_operands++;
             if (num_operands > 2) {
-                printf(TOO_MANY_OPERANDS,token);
+                printf(TOO_MANY_OPERANDS, token);
                 return 0; /* Too many operands for lea */
             }
             /* Check for valid operand based on the order (first or second) */
@@ -474,16 +449,19 @@ int is_valid_operand_amount(char *line) {
                 strcpy(operand2, token);
             }
         }
-        return num_operands == 2 && strcmp(operand1, operand2) != 0; /* Two operands required for lea and operands must be different */
+        if (num_operands < 2) {
+            printf(TOO_FEW_OPERANDS);
+            return 0; /* Too few operands for mov, add, sub */
+        }
+        return num_operands >= 2 ; /* At least two operands required for mov, add, sub  */
     } else if (strcmp(token, "prn") == 0) {
         /* Group 5: Check the first field for empty and the second field for valid (LABEL or REGISTER or INTEGER) */
         token = strtok(NULL, delimiters); /* Get the second operand field */
         if (token == NULL) {
-            printf(TOO_FEW_OPERANDS,token);
             return 0; /* Missing second operand */
         }
         if (!is_valid_register_check(token) && !is_valid_integer(token) && !is_valid_label_check(token)) {
-            printf(INVALID_OPERAND_TYPE, "prn", token);
+            printf(INVALID_OPERAND_TYPE,token);
             return 0; /* Invalid operand */
         }
 
@@ -492,10 +470,9 @@ int is_valid_operand_amount(char *line) {
     } else if (strcmp(token, "rts") == 0 || strcmp(token, "stop") == 0) {
         /* Groups 6: These opcodes have no operands, so they are valid */
         token = strtok(NULL, delimiters); /* Check if there's an unexpected second operand */
-        return token == NULL ; /* No second operand should be present */
+        return token == NULL; /* No second operand should be present */
     } else {
         /* Invalid opcode */
-        INVALID_OPCODE_ERROR(token);
         return 0;
     }
 }
@@ -507,7 +484,7 @@ int is_valid_data(const char *str) {
 
     size_t len = strlen(str);
     if (len == 0) {
-        EMPTY_DATA_ERROR;
+        printf(EMPTY_DATA_FIELD,str);
         return 0; /* Empty data*/
     }
 
@@ -517,7 +494,7 @@ int is_valid_data(const char *str) {
 
         /* Check if strtol failed or if there is an invalid character after the number */
         if (str == endptr || (*endptr && *endptr != ',' && !isspace(*endptr))) {
-            INVALID_DATA_ERROR;
+            printf(INVALID_DATA_CHAR,str);
             return 0; /* Invalid number or invalid character*/
         }
 
@@ -531,7 +508,7 @@ int is_valid_data(const char *str) {
 
     /* Check if the last character processed is a comma */
     if (*(str - 1) == ',') {
-        ILLEGAL_COMMA_ERROR;
+        printf(INVALID_COMMA,str);
         return 0; /* Comma after the last number is not allowed */
     }
 
@@ -579,7 +556,7 @@ int is_directive(char* line) {
             /* Check if the content inside the double quotes consists of letters only*/
             while (*line != '\0' && *line != '\"') {
                 if (!isalpha(*line)) {
-                    INVALID_STRING_DEFINITION_ERROR;
+                    printf(INVALID_STRING_DEFINITION_ERROR,line);
                     return 0; /* Invalid character inside the string*/
                 }
                 line++;
@@ -610,10 +587,7 @@ int is_directive(char* line) {
 
         /* Check if the next characters are valid data*/
         if (is_valid_data(line)) {
-            return 1; /* Valid .data directive */
-        } else {
-            INVALID_DATA_DIRECTIVE_ERROR;
-            return 0; /* Invalid .data directive */
+            return 1; /* Valid .data directive*/
         }
     }
 
@@ -637,7 +611,7 @@ int semicolon_displacement(char *line) {
     /* Search for semicolon ';' anywhere in the line*/
     while (*line != '\0') {
         if (*line == ';') {
-            SEMICOLON_FOUND_ERROR;
+            printf(INVALID_SEMICOLON,line);
             return 0; /* Semicolon found anywhere but the beginning of the line*/
         }
         line++;
@@ -665,7 +639,6 @@ int valid_entry_extern(char *line) {
     /* Tokenize the line using spaces and tabs as delimiters */
     token = strtok(line, " \t");
     if (token == NULL) {
-        MISSING_LABEL_ERROR;
         return 0; /* Empty line, nothing to check */
     }
 
@@ -676,20 +649,20 @@ int valid_entry_extern(char *line) {
 
         /* Check if there is a second token */
         if (token == NULL) {
-            MISSING_LABEL_ERROR;
+            printf(MISSING_LABEL,line);
             return 0; /* Missing label after ".entry" or ".extern" */
         }
 
         /* Check if the second token is a valid label */
         if (!is_valid_label_check(token)) {
-            INVALID_LABEL_ERROR;
+            printf(INVALID_LABEL,token);
             return 0; /* Invalid label after ".entry" or ".extern" */
         }
 
         /* Check if the label already exists in the array */
         for (i = 0; i < num_all_labels; i++) {
             if (strcmp(all_labels[i], token) == 0) {
-                DUPLICATE_LABEL_ERROR;
+                printf(DUP_LABEL,token);
                 return 0; /* Label already encountered */
             }
         }
@@ -752,65 +725,80 @@ int error_check(char *line, char *filename, int line_num) {
 
 
 
+
+
 int main() {
     char lines[][100] = {
-
-            ".entry LENGTH" ,            /*valid*/
-            ".extern W" ,                /*valid*/
-            "MAIN: mov @r3 , LENGTH" ,   /*valid*/
-            "LOOP: jmp L1" ,             /*valid*/
-            "prn -894",                  /*valid*/
-            "bne W",                     /*valid*/
-            "sub @r1 , @r4",             /*valid*/
-            "bne L3",                    /*valid*/
-            "L1:   inc K",               /*valid*/
-            ".entry LOOP",               /*valid*/
-            "jmp W",                    /*valid*/
-            "END: stop ",               /*valid*/
-            "STR: .string \"abcdef\"",  /*valid*/
-            "LENGTH: .data 6,-9,15",    /*valid*/
-            "K: .data 22",              /*valid*/
-            ".extern L3",               /*valid*/
-
-            "MAAAN: mov @r1 , LNGTH , @r4",  /*Not valid label + ; */
-            ".entry LENGTH",               /*Not valid .entry label duplicate*/
-            ".entry HE@LLO",               /*Not valid label*/
-            "HELLO: mog @r3, @r7",         /*Not valid opcode*/
-            "WIDJ: mov @r8 ,@r4 ",         /*Not valid register*/
-            "N@Way:     stop",             /*Not valid label*/
-            "STR: sub OK , @r3",           /*Not valid dup label*/
-            "LABEL5: .string \"acd1df\"",  /*Not valid string content*/
-            "Label6: .data -5,5,-2,7,",    /*Not valid comma*/
-            "LABEL7: .data -1,2.7,-7,-10", /*Not valid integer*/
-            "lea mov, @r5",                /*Not valid  operand label is saved word*/
-            "mov: cmp @r4 ,L8",            /*Not valid label saved word*/
-            "Label9: add @r3 ,@r9",        /*Not valid register*/
-            "mov what , 1025 ",            /*Not valid operand*/
-            "WIDJIWjiwjd: mov @r9 ,@r4 ",  /*Not valid register*/
-
-
-
-
-
-
+            "MAIN: mov @r3, LENGTH",                  /* Valid label */
+            "MAINDIDJIJDIWJDIWJIDJWIJDIdwdwdwdwdwdWJDIDJWIDJIWD: mov @r3, @r4",  /* Valid label */
+            "TOOLONG_LABEL_NAME: mov @r3, @r4",       /* Invalid - Label name too long */
+            "illegal_label!: add @r3, @r4",           /* Invalid - Illegal characters in label */
+            ".xtern MAIN",                         /* Invalid - Empty label name */
+            ".entry MAIN",
+            "ANOTHER_LABEL: sub @r1, @r2",            /* Valid label */
+            "MAINDIDJIJDIWJDIWJIDJWIJDIdwdwdwdwdwdWJDIDJWIDJIW: mov @r3, @r4",   /* Invalid - Label name too long */
+            "mylabel: add @r3, @r4"     ,              /* Valid label */
+            "mylabel: add @r3, @r4",
+            "MAIN: add @r3, @r4",
+            "mov: add @r3, @r4"
 
 
     };
+
     char *filename = "TestFile.txt";
     char line[] = "at line number:";
     char v[] = "Valid line";
 
     int i;
     for (i = 0; i < sizeof(lines) / sizeof(lines[0]); i++) {
-        int valid = error_check(lines[i], filename, i + 1);
+        int valid = error_check(lines[i], filename, i );
         if (valid)
-            printf("%d %s\n\n", i + 1, v);
+            printf("%d %s\n\n", i , v);
         else
             printf("%s %s %d\n\n", filename, line, i );
+    }
+
+    return 0;
+
+
+}
+/*
+int main() {
+    char filename[] = "your_file_name.txt";
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening the file.\n");
+        return 1;
+    }
+
+    char line[MAX_LINE_LENGTH];
+    int line_num = 1;
+    int valid = 1; // Assume success
+
+    while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
+        // Remove the newline character at the end of the line
+        if (line[strlen(line) - 1] == '\n') {
+            line[strlen(line) - 1] = '\0';
+        }
+
+        // Call error_check function for each line
+        if (!error_check(line, filename, line_num)) {
+            valid = 0; // Error detected
+        }
+
+        line_num++;
+    }
+
+    fclose(file);
+
+    if (valid) {
+        printf("All lines are valid!\n");
+    } else {
+        printf("Errors detected in the file.\n");
     }
 
     return 0;
 }
 
 
-
+*/
