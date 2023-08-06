@@ -45,8 +45,22 @@ FILE *open_file(char* filename, char* extension, char* mode){
 
     free(_filename);
 
-    return fptr;
-               
+    return fptr;       
+}
+
+void remove_file(char *filename, char *extension){
+    char* _filename = (char*)malloc(strlen(filename)+strlen(extension)+1);
+
+    if(_filename == NULL){
+        fprintf(stderr, "open_file: Memory allocation failed\n");
+        exit(1);                     
+    }
+
+    strcpy(_filename, filename);
+    strcat(_filename, extension);
+
+    remove(_filename);
+    free(_filename);
 }
 
 

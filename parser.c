@@ -86,32 +86,49 @@ char* get_line(FILE *fptr){
 }
 
 int validate_syntax(char* line) {
-    int i;
+    int i = 0;
     int len = strlen(line);
-    int commaCount = 0;
-    int operandExpected = TRUE;
-
-    for (i = 0; i < len; i++) {
-        if(i == 0 && !IS_CHAR(line[0]) && line[0] != '.'){
-            printf(ILLEGAL_CHARACTER_IN_LABEL, line[0]);
-            return FALSE;
-        }
-
-
-        else if (line[i] == ',') {
-            if (operandExpected || i == 0 || line[i - 1] == ',') {
-                return FALSE;  /* Comma in an unexpected position */
-            }
-            commaCount++;
-            operandExpected = TRUE;
-
-        } else {
-            operandExpected = FALSE;
-        }
+    int tokenCount = 0;
+    int tokenExpected = TRUE;
+    char *endLabel;
+   
+    if((endLabel=strchr(line, ':')) != NULL){
+        i = endLabel - line + 1;
     }
+    
+    while(i<len){
+        
+        while(isspace(line[i]))
+            i++;
+            
+        if(line[i] == ','){
+            if(tokenExpected)
+                return FALSE;
+            else if(i == len-1)
+                return FALSE;
+                
+            tokenExpected = TRUE;
+        }
+        else if(IS_VALID_CHAR(line[i])){
+            
+            if(!tokenExpected){
+                return FALSE;
+            }
+            
+            while(IS_VALID_CHAR(line[i]))
+                i++;
+                
+            tokenCount++;
+            tokenExpected = (tokenCount>1)?FALSE:TRUE;
+            continue;
+        }
+        else
+            tokenExpected = FALSE;
+            
 
-    if (operandExpected) {
-        return FALSE;  /* Last token is an operand */
+        i++;
+        
+        
     }
 
     return TRUE;

@@ -93,11 +93,11 @@ void checkout_macros(char* filename){
     fclose(fsrc);
 }
 
-int main(){
+/* int main(){
 
     char *filename = "ps";
     checkout_macros(filename);
 
     return 0;
 
-}
+} */
