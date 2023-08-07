@@ -134,8 +134,6 @@ int validate_syntax(char* line) {
     return TRUE;
 }
 
-
-
 char** parse_command(char* line){
     
     int i=0;
@@ -162,18 +160,6 @@ void free_command(char** command) {
         /* printf("- parse_command - %p, '%s'\n", command[i], command[i]); */
         free(command[i]);
     }
-
-    macro_data = NameBodyExtractor(file);
-
-    fclose(file);
-
-    macro_layout(macro_data, renamed_file);
-
-    line_eraser(renamed_file);
-
-    freeNameAndBody(macro_data);
-
-    return 0;
 }
 
 /*int main (){
