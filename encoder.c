@@ -372,11 +372,11 @@ int validate_operands_count(int opcode_index, char **instruction, int start_inde
     for(i = start_index; instruction[i] != NULL; i++);
 
     if((i - start_index) > expected){
-        fprintf(stderr, TOO_MANY_OPERANDS, opcodes[opcode_index]);
+        /* fprintf(stderr, TOO_MANY_OPERANDS, opcodes[opcode_index]); */
         return FALSE;
     }
     else if((i - start_index) < expected){
-        fprintf(stderr, TOO_FEW_OPERANDS, opcodes[opcode_index]);
+        /* fprintf(stderr, TOO_FEW_OPERANDS, opcodes[opcode_index]) */;
         return FALSE;
     }
 

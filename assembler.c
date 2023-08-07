@@ -126,12 +126,18 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, HashTable *symbol_
             continue;
         }
 
-        else if(!validate_syntax(line)){ /*todo: add error messages*/
+        else if(!error_check(duplicateString(line), filename, LINE_CNT)){
+            EC++;
+            free(line);
+            continue;
+        }
+
+        /* else if(!validate_syntax(line)){
             EC++;
             fprintf(stderr, ERROR_LOCATION, filename, LINE_CNT);
             free(line);
             continue;
-        }
+        } */
 
         
         line_len = strlen(line);

@@ -3,11 +3,17 @@ CFLAGS = -ansi -pedantic -Wall
 
 all: assembler
 
-assembler: assembler.o encoder.o linkedlist.o parser.o utilities.o hashtable.o macro.o
-	$(CC) $(CFLAGS) -o assembler  assembler.o encoder.o linkedlist.o parser.o utilities.o hashtable.o macro.o
+assembler: assembler.o encoder.o linkedlist.o parser.o utilities.o hashtable.o macro.o errors.o
+	$(CC) $(CFLAGS) -o assembler  assembler.o encoder.o linkedlist.o parser.o utilities.o hashtable.o macro.o errors.o
 
 assembler.o: assembler.c assembler.h
 	$(CC) $(CFLAGS) -c assembler.c
+
+errors: errors.o
+	$(CC) $(CFLAGS) -o errors errors.o
+
+errors.o: errors.c errors.h
+	$(CC) $(CFLAGS) -c errors.c
 
 encoder: encoder.o linkedlist.o parser.o utilities.o
 	$(CC) $(CFLAGS) -o encoder encoder.o linkedlist.o parser.o utilities.o
@@ -46,4 +52,4 @@ leak-check:
 	valgrind --leak-check=full --track-origins=yes ./assembler ps
 
 clean:
-	rm -f assembler encoder parser macro debug *.o *.ent *.ext *.ob *.am
+	rm -f assembler encoder parser macro debug errors *.o *.ent *.ext *.ob *.am
