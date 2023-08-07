@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "utilities.h"
+#include "parser.h"
 
 #define TABLE_SIZE 100
 #define MAX_ARRAY_SIZE 100
@@ -36,6 +37,8 @@ void removeEntry(HashTable* table, const char* key);
 void printHashTable(HashTable* table); 
 
 void freeHashtable(HashTable* table);
+
+void freeHashtableStrings(HashTable* table);
 
 #endif /* HASH_TABLE_H */
 

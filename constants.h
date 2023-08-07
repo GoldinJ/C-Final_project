@@ -14,7 +14,7 @@
 #define MIN_INT_VALUE -1023
 
 #define IN_RANGE(c, from, to) (c>=from && c<=to)
-#define IS_CHAR(c) ((IN_RANGE(c, 'A', 'Z') || IN_RANGE(c, 'a', 'z')))
+#define IS_VALID_CHAR(c) (isalnum(c) || (c) == '+' || (c) == '-' || (c) == '.' || (c) == '@' || (c) == '"')
 #define IS_LABEL(str) (*((str) + strlen(str) - 1) == ':')
 #define START_WITH(token, sign) (*token == sign)
 #define END_WITH(token, sign) (*((token) + strlen(token) - 1) == sign)
@@ -45,7 +45,15 @@ enum token_type{
 
 };
 
-enum node_type {NODE_ENTRY, NODE_EXTERN, NODE_FIRST_W, NODE_IMDT_DRCT_W, NODE_REG_W, NODE_DATA_W, NODE_STRING_W};
+enum node_type {
+    NODE_ENTRY, 
+    NODE_EXTERN, 
+    NODE_FIRST_W, 
+    NODE_IMDT_DRCT_W, 
+    NODE_REG_W,
+    NODE_DATA_W,
+    NODE_STRING_W
+};
 
 
 /*Defines a 12 bit machine word - the fisrt word of instruction*/
@@ -109,6 +117,23 @@ typedef struct {
     char*** macro_bodies;
     int* macro_body_counts;
 } MacroData;
+
+
+typedef struct Instruction{
+    char *label;
+    int opcode_index;
+    int num_operands;
+    int operand1_type;
+    int operand2_type;
+}Instruction;
+
+typedef struct Directive{
+    char *label;
+    int type;
+    int num_operands;
+    int operand_type;
+
+}Directive;
 
 #endif
 

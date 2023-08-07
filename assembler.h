@@ -7,5 +7,6 @@
 #include "linkedlist.h"
 #include "encoder.h"
 #include "hashtable.h"
+#include "macro.h"
 
 #endif 

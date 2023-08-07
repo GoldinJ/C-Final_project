@@ -98,13 +98,12 @@ int _get_queue_size(machine_w*** word);
  * @param word  The word queue.
  * @param size  The size of the queue.
  */
-void free_word_queue(machine_w*** word, int size);
+void free_word_queue(machine_w*** word);
 
 /**
  * Allocates memory for the word queue.
  *
  * @param word  The word queue.
- * @param size  The size of the queue.
  */
 void allocate_word_queue(machine_w*** word, int size);
 

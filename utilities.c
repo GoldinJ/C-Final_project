@@ -24,11 +24,69 @@ void print_last_12_bits(unsigned int num) {
     printf("\n");
 }
 
+FILE *open_file(char* filename, char* extension, char* mode){
+    FILE *fptr;
+    char* _filename = (char*)malloc(strlen(filename)+strlen(extension)+1);
+
+    if(_filename == NULL){
+        fprintf(stderr, "open_file: Memory allocation failed\n");
+        exit(1);                     
+    }
+
+    strcpy(_filename, filename);
+    strcat(_filename, extension);
+
+    fptr = fopen(_filename, mode);
+
+    if(fptr == NULL){
+        fprintf(stderr, "open_file: Failed to open - '%s'\n", _filename);
+        return NULL;
+    }
+
+    free(_filename);
+
+    return fptr;       
+}
+
+void remove_file(char *filename, char *extension){
+    char* _filename = (char*)malloc(strlen(filename)+strlen(extension)+1);
+
+    if(_filename == NULL){
+        fprintf(stderr, "open_file: Memory allocation failed\n");
+        exit(1);                     
+    }
+
+    strcpy(_filename, filename);
+    strcat(_filename, extension);
+
+    remove(_filename);
+    free(_filename);
+}
+
+
 char* duplicateString(const char* source) {
-    size_t length = strlen(source);
-    char* destination = (char*)malloc(length + 1);
+    size_t length;
+    char* destination = NULL;
+
+    if(source == NULL)
+        return NULL;
+        
+    length = strlen(source);
+    destination = (char*)malloc(length + 1);
     if (destination != NULL) {
         strcpy(destination, source);
     }
     return destination;
+}
+
+void appendString(char*** list, int* size, const char* str) {
+    char** newList = (char**)realloc(*list, (*size + 1) * sizeof(char*));
+    if (newList == NULL) {
+        fprintf(stderr, "appendString: Memory allocation failed!\n");
+        return;
+    }
+
+    newList[*size] = duplicateString(str);
+    *list = newList;
+    (*size) += 1;
 }

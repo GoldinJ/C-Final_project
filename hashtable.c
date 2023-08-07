@@ -91,7 +91,7 @@ void printHashTable(HashTable* table) {
             printf("Index %d:\t", i);
             while (entry != NULL) {
                 printf("  Key: %s\t ---- \t", entry->key);
-                printf("  Value: %d\n", (int)(long)entry->value);
+                printf("  Value: %p\n", entry->value);
                 entry = entry->next;
             }
         }
@@ -106,6 +106,22 @@ void freeHashtable(HashTable* table) {
         while (entry != NULL) {
             Entry* nextEntry = entry->next;
             free(entry->key);
+            free(entry);
+            entry = nextEntry;
+        }
+    }
+    free(table->entries);
+    free(table);
+}
+
+void freeHashtableStrings(HashTable* table) {
+    int i;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        Entry* entry = table->entries[i];
+        while (entry != NULL) {
+            Entry* nextEntry = entry->next;
+            free(entry->key);
+            free_command(entry->value);
             free(entry);
             entry = nextEntry;
         }
