@@ -126,7 +126,7 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, HashTable *symbol_
             continue;
         }
 
-        else if(!error_check(duplicateString(line), filename, LINE_CNT)){
+        else if(!error_check(line, filename, LINE_CNT)){
             EC++;
             free(line);
             continue;

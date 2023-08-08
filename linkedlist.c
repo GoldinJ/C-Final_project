@@ -39,7 +39,7 @@ void free_list(LinkedList* list) {
         }
 
         if (temp->word != NULL) {
-            if (temp->word->label != NULL) {
+            if (temp->word->label != NULL && temp->word->node_type != NODE_IMDT_DRCT_W) {
                 free(temp->word->label);
                 temp->word->label = NULL;
             }

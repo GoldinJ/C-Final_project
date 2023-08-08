@@ -71,7 +71,6 @@ void expand_macros(FILE *fsrc, char* filename){
         free(line);
         free(line_copy);
         free_command(instruction);
-
     }
 
     freeHashtableStrings(macro_table);
@@ -79,7 +78,7 @@ void expand_macros(FILE *fsrc, char* filename){
 }
 
 void checkout_macros(char* filename){
-    FILE *fsrc;
+    FILE *fsrc = NULL;
 
     fsrc = open_file(filename, ".as", "r");
 
