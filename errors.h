@@ -11,11 +11,7 @@
 #define SET_TO_RED(msg) "\033[1;31m" msg "\033[0m"
 #define ERROR_LOCATION "(at:%s.am:line:%d)\n"
 /*                           ==================================== Syntax Errors ====================================                                */
-#define UNEXPECTED_COMMA SET_TO_RED("Error: ") "Comma in an unexpected position - %s\n"
-/* #define ILLEGAL_CHARACTER_IN_LABEL SET_TO_RED("Error: ") "A label cannot begin with - '%c'\n"*/
-/* #define TOO_FEW_OPERANDS      SET_TO_RED("Error: ") "too few operands for - '%s' instruction\n" */
-/* #define TOO_MANY_OPERANDS     SET_TO_RED("Error: ") "too many operands for - '%s' instruction\n" */
-/* #define INVALID_OPERAND_TYPE  SET_TO_RED("Error: ") "Invalid operand type for '%s' command. Operand: %d\n" */
+
 #define INVALID_LABEL_SYNTAX  SET_TO_RED("Error: ") "Invalid character - '%c' in label defenition\n"
 #define INVALID_LABEL_LENGTH  SET_TO_RED("Error: ") "Invalid label length - '%s'\n"
 #define INVALID_REGISTER      SET_TO_RED("Error: ") "Invalid register - '%s'\n"
@@ -46,7 +42,7 @@
 #define ERRORS_DETECTED SET_TO_RED("Error: ") "Errors have been detected in the file \n"
 
 #define EXTRA_CHARACTERS_AFTER_STRING     SET_TO_RED("Error: ") "character definition not allowed here- '%s' \n"
-#define MISSING_CLOSING_QUOTE     SET_TO_RED("Error: ") "missing ' \" '  \n"
+#define MISSING_CLOSING_QUOTE     SET_TO_RED("Error: ") "missing '\"' in %s \n"
 #define NO_VALID_DATA  SET_TO_RED("Error: ") "Invalid data input  \n"
 #define INVALID_OPCODE_COMMA  SET_TO_RED("Error: ") "Invalid comma found in line \n"
 #define EXTRA_CHARACTERS_AFTER_LABEL SET_TO_RED("Error: ") "Invalid definition after the label - %s\n"
