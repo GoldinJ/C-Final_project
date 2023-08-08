@@ -42,7 +42,7 @@
 #define INVALID_OPCODES      SET_TO_RED("Error: ") "Invalid opcode - '%s' \n"
 #define DUPLICATE_LABEL SET_TO_RED("Error: ") "Duplicate label found in - '%s'\n"
 #define LABEL_IS_RESERVED_WORD SET_TO_RED("Error: ") "Label is a reserved word - '%s'\n"
-
+#define ERRORS_DETECTED SET_TO_RED("Error: ") "Errors have been detected in the file \n"
 
 #define EXTRA_CHARACTERS_AFTER_STRING     SET_TO_RED("Error: ") "character definition not allowed here- '%s' \n"
 #define MISSING_CLOSING_QUOTE     SET_TO_RED("Error: ") "missing ' \" '  %s \n"
