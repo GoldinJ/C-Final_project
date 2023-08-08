@@ -151,7 +151,7 @@ int validate_syntax(char* line) {
 
 char** parse_command(char* line) {
     int i = 0;
-    int j, k;
+    int j;
     int len = strlen(line);
     int start = 0; /*  Start index of the current token */
     int state = 0; /*  0: Regular token parsing, 1: Inside quotation marks */
@@ -185,7 +185,7 @@ char** parse_command(char* line) {
             command[i] = duplicate_str(line + start); /*  Copy the token content with quotation marks */
             if (command[i] == NULL) {
                 fprintf(stderr, "Memory allocation failed\n");
-                free(command);
+                free_command(command);
                 free(command);
                 return NULL;
             }
