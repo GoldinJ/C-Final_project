@@ -22,6 +22,21 @@ void strip(char *str) {
     }
 }
 
+char* duplicate_str(const char* source) {
+    size_t length;
+    char* destination = NULL;
+
+    if(source == NULL)
+        return NULL;
+        
+    length = strlen(source);
+    destination = (char*)malloc(length + 1);
+    if (destination != NULL) {
+        strcpy(destination, source);
+    }
+    return destination;
+}
+
 char* get_line(FILE *fptr){
 
     int cnt=0;
@@ -134,7 +149,58 @@ int validate_syntax(char* line) {
     return TRUE;
 }
 
-char** parse_command(char* line){
+char** parse_command(char* line) {
+    int i = 0;
+    int j, k;
+    int len = strlen(line);
+    int start = 0; /*  Start index of the current token */
+    int state = 0; /*  0: Regular token parsing, 1: Inside quotation marks */
+
+    char **command = malloc(INSTR_SIZE * sizeof(char *));
+    
+    if (command == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+
+    for (j = 0; j <= len; j++) {
+        if (state == 0 && (line[j] == ' ' || line[j] == '\t' || line[j] == ',' || line[j] == '\0')) {
+            if (j > start) { /*  Avoid empty tokens */
+                line[j] = '\0'; /*  Null-terminate the token */
+                command[i] = duplicate_str(line + start); /*  Copy the token content */
+                if (command[i] == NULL) {
+                    fprintf(stderr, "Memory allocation failed\n");
+                    free_command(command);
+                    free(command);
+                    return NULL;
+                }
+                i++;
+            }
+            start = j + 1;
+        } else if (state == 0 && line[j] == '"') {
+            state = 1;
+            start = j; /*  Include the starting quotation mark */
+        } else if (state == 1 && line[j] == '"') {
+            line[j + 1] = '\0'; /*  Null-terminate the token at the ending quotation mark */
+            command[i] = duplicate_str(line + start); /*  Copy the token content with quotation marks */
+            if (command[i] == NULL) {
+                fprintf(stderr, "Memory allocation failed\n");
+                free(command);
+                free(command);
+                return NULL;
+            }
+            i++;
+            state = 0;
+            start = j + 2; /*  Skip the ending quotation mark and the following character */
+        }
+    }
+    
+    command[i] = NULL;
+
+    return command;
+}
+
+/* char** parse_command(char* line){
     
     int i=0;
     char **command = malloc(INSTR_SIZE * sizeof(char *));
@@ -145,14 +211,13 @@ char** parse_command(char* line){
 
         command[i] = malloc((strlen(token) + 1) * sizeof(char));
         strcpy(command[i], token);
-        /* printf("+ parse_command - %p, '%s'\n", command[i], command[i]); */
         i++;
         token = strtok(NULL, " \t, \t");
     }
     command[i] = NULL;
 
     return command;
-}
+} */
 
 void free_command(char** command) {
     int i;
