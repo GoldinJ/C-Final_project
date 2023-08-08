@@ -210,6 +210,7 @@ int is_valid_register_check(char *word) {
 /*Function to help is_valid_operand_amount*/
 int is_valid_integer(char *word) {
     int i;
+    int value;
 
     /* Check if the word is empty*/
     if (word == NULL || *word == '\0') {
@@ -233,6 +234,12 @@ int is_valid_integer(char *word) {
     if (i == 1 && (word[0] == '+' || word[0] == '-')) {
         return 0;
     }
+    /* Convert the string to an integer and check the range */
+    value = atoi(word);
+    if (value < -1024 || value > 1024) {
+        return 0; /* Value out of range */
+    }
+
 
     return 1; /* Valid integer*/
 }
@@ -736,6 +743,8 @@ int valid_entry_extern(char *line) {
             return 0; /* Invalid label after ".entry" or ".extern" */
         }
 
+
+
         /* Check if the label already exists in the array */
         for (i = 0; i < num_all_labels; i++) {
             if (strcmp(all_labels[i], token) == 0) {
@@ -747,6 +756,13 @@ int valid_entry_extern(char *line) {
         /* Add the label to the array and increment the counter */
         strcpy(all_labels[num_all_labels], token);
         num_all_labels++;
+
+        /* Check if there is anything else after the label */
+        token = strtok(NULL, " \t");
+        if (token != NULL) {
+            printf(EXTRA_CHARACTERS_AFTER_LABEL,token);
+            return 0; /* Extra characters after the label */
+        }
 
         return 1; /* Valid .entry or .extern with a valid label */
     }
@@ -798,11 +814,12 @@ int error_check(char *line, char *filename, int line_num) {
     }
 
     if (!result) {
-        printf("Error in %s, line %d: %s\n\n", filename, line_num, line);
+        printf(ERROR_CHECK, filename, line_num, line);
     }
 
     return result;
 }
+
 
 
 
