@@ -37,18 +37,24 @@
 #define INVALID_COMMA    (SET_TO_RED("Error: ") "invalid comma - '%c' \n")
 #define INVALID_SEMICOLON    (SET_TO_RED("Error: ") "Invalid ; placement - %c \n")
 #define MISSING_LABEL   (SET_TO_RED("Error: ") "Label is missing in - %s \n")
-#define INVALID_LABEL   (SET_TO_RED("Error: ") "Invalid Label - %s ")
+#define INVALID_LABEL   (SET_TO_RED("Error: ") "Invalid Label - %s \n")
 #define DUP_LABEL SET_TO_RED("Error: ") "Duplicate label - '%s'\n"
 #define INVALID_OPCODES      SET_TO_RED("Error: ") "Invalid opcode - '%s' \n"
 #define DUPLICATE_LABEL SET_TO_RED("Error: ") "Duplicate label found in - '%s'\n"
 #define LABEL_IS_RESERVED_WORD SET_TO_RED("Error: ") "Label is a reserved word - '%s'\n"
 
-#define EXTRA_CHARACTERS_AFTER_STRING     SET_TO_RED("Error: ") "character definition not allowed here- '%s' \n"
-#define MISSING_CLOSING_QUOTE     SET_TO_RED("Error: ") "missing ' \" ' - '%s' \n"
-#define NO_VALID_DATA  SET_TO_RED("Error: ") "Invalid data input  \n"
+#define ERRORS_DETECTED SET_TO_RED("Error: ") "Errors have been detected in the file \n"
 
-                            
-  /*                           ==================================== File Errors ====================================            */
+#define EXTRA_CHARACTERS_AFTER_STRING     SET_TO_RED("Error: ") "character definition not allowed here- '%s' \n"
+#define MISSING_CLOSING_QUOTE     SET_TO_RED("Error: ") "missing ' \" '  \n"
+#define NO_VALID_DATA  SET_TO_RED("Error: ") "Invalid data input  \n"
+#define INVALID_OPCODE_COMMA  SET_TO_RED("Error: ") "Invalid comma found in line \n"
+#define EXTRA_CHARACTERS_AFTER_LABEL SET_TO_RED("Error: ") "Invalid definition after the label - %s\n"
+#define ERROR_CHECK  "in file %s , line %d: %s\n\n"
+
+
+
+/*                           ==================================== File Errors ====================================            */
                 
 #define FILE_NOT_FOUND SET_TO_RED("Error: ") "File not found - '%s'\n"
 
