@@ -285,8 +285,9 @@ void allocate_word_queue(machine_w*** word, int size){
         exit(1);
     }
 
-    for(i=1; i<size; i++)
+    for(i=1; i<size; i++){
         (*word)[i] = NULL;
+    }
 
 }
 
@@ -568,10 +569,10 @@ machine_w** encode_first_w(char** line, char* label, int opcode_index, int start
 machine_w** encode_data_w(char **line, char *label, int token_type, int start_index){
     int j;
     int queue_size;
-    char *token;
     int num;
-    machine_w** word_queue;
-    data_w *d_word;
+    char *token = NULL;
+    machine_w** word_queue = NULL;
+    data_w *d_word = NULL;
     
     switch (token_type)
     {
@@ -583,6 +584,11 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
         for(j=0; j<queue_size-1; j++, start_index++){
             token = line[start_index];
             d_word = (data_w*)malloc(sizeof(d_word));
+
+             if(d_word == NULL){
+                fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - d_word"));
+                exit(1);
+            }
             
             if(is_num(token, TRUE)){
                 num = to_int(token);
@@ -596,9 +602,14 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
                 if(j == 0)
                     word_queue[j]->label = label;
                     
-                else
+                else{
                     word_queue[j] = (machine_w*)malloc(sizeof(machine_w));
 
+                    if(word_queue[j-1] == NULL){
+                    fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - word_queue[j-1]"));
+                    exit(1);
+                }
+                }
 
                 d_word->data = num;
                 word_queue[j]->word.d_word = d_word;
@@ -617,11 +628,17 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
 
     case TOKEN_STRING:
         token = line[start_index]; /*TODO - validate token syntax*/
-        queue_size = sizeof(token);
+        queue_size = strlen(token);
         allocate_word_queue(&word_queue, queue_size);
 
         for(j=1; j<queue_size-1; j++){
             d_word = (data_w*)malloc(sizeof(d_word));
+
+            if(d_word == NULL){
+                fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - d_word"));
+                exit(1);
+            }
+
             d_word->data = token[j];
 
             if(j==1){
@@ -633,6 +650,11 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
             else{
                 d_word->data = token[j];
                 word_queue[j-1] = (machine_w*)malloc(sizeof(machine_w));
+
+                if(word_queue[j-1] == NULL){
+                    fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - word_queue[j-1]"));
+                    exit(1);
+                }
             }
 
             word_queue[j-1]->word.d_word = d_word;
@@ -640,8 +662,20 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
         }
 
         d_word = (data_w*)malloc(sizeof(d_word));
+
+        if(d_word == NULL){
+            fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - d_word"));
+            exit(1);
+        }
+
         d_word->data = 0;
         word_queue[j-1] = (machine_w*)malloc(sizeof(machine_w));
+
+         if(word_queue[j-1] == NULL){
+            fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - word_queue[j-1]"));
+            exit(1);
+         }
+
         word_queue[j-1]->word.d_word = d_word;
         word_queue[j-1]->node_type = NODE_DATA_W;
 
