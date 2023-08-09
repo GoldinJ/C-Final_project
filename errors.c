@@ -448,7 +448,7 @@ int is_valid_operand_amount(char *line) {
         num_operands = 0;
         hasError = 0;
 
-        if (comma_count > 0) {
+        if (comma_count > 1) {
             printf(INVALID_OPCODE_COMMA);
             return 0; /* Too many commas for the specified opcode */
         }
