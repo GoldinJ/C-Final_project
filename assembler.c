@@ -20,7 +20,7 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruc
         while(word_queue[i] != NULL){
             tmp = word_queue[i];
             
-            if (tmp->label !=NULL && (tmp->node_type == NODE_FIRST_W || tmp->node_type == NODE_DATA_W)){
+            if (tmp->label !=NULL && (tmp->node_type == NODE_FIRST_W || tmp->node_type == NODE_DATA_W || tmp->node_type == NODE_FIRST_DATA_W)){
                 insert(symbol_table, tmp->label, (void*)(long)(*dec_address));
             }
 
@@ -110,10 +110,10 @@ int write_label_to_file(FILE **fptr, char* filename, char* extension, char* labe
 }
 
 void first_pass(FILE *fptr, char *filename, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
-    char *line;
-    char *line_copy;
+    char *line = NULL;
+    char *line_copy = NULL;
     char **instruction = NULL;
-    int line_len;
+    int line_len = 0;
     int dec_address = 100;
 
     LINE_CNT = 0;
@@ -172,7 +172,7 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
         current_node = current_node->next;
         label = tmp_node->word->label;
 
-        if(tmp_node->word->node_type == NODE_DATA_W)
+        if(tmp_node->word->node_type == NODE_DATA_W || tmp_node->word->node_type == NODE_FIRST_DATA_W)
             (*DC)++;
         else
             (*IC)++;
@@ -295,13 +295,13 @@ void process_input(char* filename){
     first_pass(fsrc, filename, &list, symbol_table, external_symbols, entry_symbols);
     second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
 
-    /* printf("Extern symbols:\n----------------------\n");
+    printf("Extern symbols:\n----------------------\n");
     printHashTable(external_symbols);
     printf("Entry symbols:\n----------------------\n");
     printHashTable(entry_symbols);
     printf("Symbols table:\n----------------------\n");
     printHashTable(symbol_table);
-    print_list(&list, FALSE); */
+    print_list(&list, FALSE);
     make_obj_file(&list, filename, IC, DC);
 
     freeHashtable(symbol_table);

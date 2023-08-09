@@ -52,6 +52,7 @@ enum node_type {
     NODE_IMDT_DRCT_W, 
     NODE_REG_W,
     NODE_DATA_W,
+    NODE_FIRST_DATA_W,
     NODE_STRING_W
 };
 

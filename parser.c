@@ -169,7 +169,7 @@ char** parse_command(char* line) {
             if (j > start) { /*  Avoid empty tokens */
                 line[j] = '\0'; /*  Null-terminate the token */
                 command[i] = duplicate_str(line + start); /*  Copy the token content */
-               /*  printf("+ parse_command %s - %p\n", command[i], command[i]); */
+                /* printf("+ parse_command %s - %p\n", command[i], command[i]); */
                 if (command[i] == NULL) {
                     fprintf(stderr, "Memory allocation failed\n");
                     free_command(command);

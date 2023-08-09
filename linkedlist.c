@@ -39,7 +39,7 @@ void free_list(LinkedList* list) {
         }
 
         if (temp->word != NULL) {
-            if (temp->word->label != NULL && temp->word->node_type != NODE_IMDT_DRCT_W) {
+            if (temp->word->label != NULL && (temp->word->node_type == NODE_FIRST_W || temp->word->node_type == NODE_FIRST_DATA_W)) {
                 free(temp->word->label);
                 temp->word->label = NULL;
             }
@@ -47,6 +47,7 @@ void free_list(LinkedList* list) {
             switch (temp->word->node_type)
             {
                 case NODE_FIRST_W:
+                case NODE_FIRST_DATA_W:
                     free(temp->word->word.f_word);
                     temp->word->word.f_word = NULL;
                     break;

@@ -76,6 +76,7 @@ char* duplicateString(const char* source) {
     if (destination != NULL) {
         strcpy(destination, source);
     }
+
     return destination;
 }
 
