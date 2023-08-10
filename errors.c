@@ -533,54 +533,56 @@ int is_valid_operand_amount(char *line) {
 
 /*Function that helps is_directive to validate .data content*/
 int is_valid_data(const char *str) {
+    int has_number = 0; /* Flag to track if at least one valid number is encountered */
+    int has_comma = 0;  /* Flag to track if at least one comma is encountered */
     char *endptr;
-    int has_number;
-
-    size_t len = strlen(str);
-    if (len == 0) {
-        printf(EMPTY_DATA_FIELD);
-        return 0; /* Empty data */
-    }
-
-    has_number = 0; /* Flag to track if at least one valid number is encountered */
 
     while (*str) {
+        /* Skip whitespace characters */
+        while (isspace(*str)) {
+            str++;
+        }
+
+        /* Check for a comma separator */
+        if (*str == ',') {
+            if (!has_number) {
+                printf(EMPTY_DATA_FIELD);
+                return 0; /* Empty data element before comma */
+            }
+            has_comma = 1;
+            has_number = 0;
+            str++; /* Move past the comma */
+            continue;
+        }
+
         /* Attempt to convert the current part of the string to a long integer */
         strtol(str, &endptr, 10);
 
         /* Check if strtol failed or if there is an invalid character after the number */
-        if (str == endptr || (*endptr && *endptr != ',' && !isspace(*endptr))) {
-            printf(INVALID_DATA_CHAR, str);
-            return 0; /* Invalid number or invalid character */
+        if (str == endptr) {
+            printf(INVALID_DATA_CHAR, *str);
+            return 0; /* Invalid character */
         }
 
-        if (str != endptr) {
-            has_number = 1;
-        }
-
+        has_number = 1;
         str = endptr;
-        if (*str == ',' || *str == '-') {
-            str++; /* Move past the comma or minus sign */
-        } else if (*str != '\0') {
-            printf(INVALID_DATA_CHAR, str);
+
+        if (*str == ',') {
+            has_comma = 1;
+            str++; /* Move past the comma */
+        } else if (*str != '\0' && !isspace(*str)) {
+            printf(INVALID_DATA_CHAR, *str);
             return 0; /* Invalid character after the number */
         }
     }
 
-    if (!has_number) {
-        printf(NO_VALID_DATA);
-        return 0; /* No valid number found */
-    }
-
-    /* Check if the last character processed is a comma */
-    if (*(str - 1) == ',') {
-        printf(INVALID_COMMA, ',');
-        return 0; /* Comma after the last number is not allowed */
+    if (!has_number && has_comma) {
+        printf(EMPTY_DATA_FIELD);
+        return 0; /* Empty data element after comma */
     }
 
     return 1; /* Valid data */
 }
-
 
 /*Function for validating .string .data and the content*/
 int is_directive(char* line) {
