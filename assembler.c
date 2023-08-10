@@ -274,6 +274,7 @@ void make_obj_file(LinkedList* lst, char* filename, int IC, int DC){
 
 void process_input(char* filename){
     
+    static int MEMORY_SIZE = 1024;
     int IC = 0;
     int DC = 0;
     FILE *fsrc = NULL;
@@ -294,15 +295,24 @@ void process_input(char* filename){
 
     first_pass(fsrc, filename, &list, symbol_table, external_symbols, entry_symbols);
     second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
+    MEMORY_SIZE = MEMORY_SIZE - IC - DC;
 
-    printf("Extern symbols:\n----------------------\n");
+   /*  printf("Extern symbols:\n----------------------\n");
     printHashTable(external_symbols);
     printf("Entry symbols:\n----------------------\n");
     printHashTable(entry_symbols);
     printf("Symbols table:\n----------------------\n");
     printHashTable(symbol_table);
-    print_list(&list, FALSE);
+    print_list(&list, FALSE); */
+
+    if(MEMORY_SIZE < 0){
+        EC++;
+        fprintf(stderr, MEMORY_OVERFLOW);
+        remove_file(filename, ".ext");
+        remove_file(filename, ".ent");
+    }
     make_obj_file(&list, filename, IC, DC);
+
 
     freeHashtable(symbol_table);
     freeHashtable(entry_symbols);
@@ -325,8 +335,8 @@ int main(int argc, char *argv[]){
         for(i = 1; i<argc; i++){
             
             file_name = duplicateString(argv[i]);
-            checkout_macros(file_name);
-            process_input(file_name);
+            if(checkout_macros(file_name));
+                process_input(file_name);
             free(file_name);
         }
 

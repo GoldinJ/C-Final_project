@@ -15,6 +15,6 @@ typedef struct Macro{
 }Macro;
 
 void expand_macros(FILE *fsrc, char* filename);
-void checkout_macros(char* filename);
+int checkout_macros(char* filename);
 
 #endif
