@@ -9,5 +9,6 @@ char* get_line();
 int validate_syntax(char* line);
 char** parse_command(char* line);
 void free_command(char** command);
+void clean_whitespaces(char *line);
 
 #endif

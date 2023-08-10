@@ -22,6 +22,40 @@ void strip(char *str) {
     }
 }
 
+void clean_whitespaces(char *str) {
+    int i;
+    int len = strlen(str);
+    int inWhitespace = FALSE;
+    int newIndex = 0;
+
+    for (i = 0; i < len; i++) {
+        if (str[i] == ' ' || str[i] == '\t') {
+            if (!inWhitespace) {
+                inWhitespace = TRUE;
+                str[newIndex++] = ' ';
+            }
+        } else if (str[i] == ',') {
+            if (newIndex > 0 && str[newIndex - 1] == ' ') {
+                str[newIndex - 1] = ','; /*  Remove space before comma */
+            } else {
+                str[newIndex++] = ','; /*  Add comma */
+            }
+            str[newIndex++] = ' '; /*  Add single space after comma */
+            inWhitespace = TRUE; /*  Set to true to avoid consecutive spaces */
+        } else {
+            inWhitespace = FALSE;
+            str[newIndex++] = str[i];
+        }
+    }
+
+     if (newIndex > 0 && str[newIndex - 1] == ' ') {
+        str[newIndex - 1] = '\0';
+    } else {
+        str[newIndex] = '\0';
+    }
+
+}
+
 char* duplicate_str(const char* source) {
     size_t length;
     char* destination = NULL;

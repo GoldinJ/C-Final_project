@@ -26,6 +26,7 @@ void expand_macros(FILE *fsrc, char* filename){
             continue;
         }
 
+        clean_whitespaces(line);
         line_copy = duplicateString(line);
         instruction = parse_command(line_copy);
         

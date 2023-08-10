@@ -297,13 +297,13 @@ void process_input(char* filename){
     second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
     MEMORY_SIZE = MEMORY_SIZE - IC - DC;
 
-   /*  printf("Extern symbols:\n----------------------\n");
+    printf("Extern symbols:\n----------------------\n");
     printHashTable(external_symbols);
     printf("Entry symbols:\n----------------------\n");
     printHashTable(entry_symbols);
     printf("Symbols table:\n----------------------\n");
     printHashTable(symbol_table);
-    print_list(&list, FALSE); */
+    print_list(&list, FALSE);
 
     if(MEMORY_SIZE < 0){
         EC++;
