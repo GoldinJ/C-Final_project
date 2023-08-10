@@ -47,11 +47,13 @@ static int num_labels = 0;
 
 
 /* Function to check if a given line might contain duplicate labels*/
-int is_single_label(char *line) {
+int is_single_label(char *line, const char *filename) {
     int label_len;
     int i;
     char *colon_pos;
     char label[MAX_LABEL_LENGTH];
+    char labeled_label[MAX_LABELS];
+
 
     /* Check if the line contains ':' (colon) */
     colon_pos = strchr(line, ':');
@@ -75,8 +77,12 @@ int is_single_label(char *line) {
             }
         }
 
-        /* Store the label in the array for future use */
-        strncpy(labels[num_labels], label, MAX_LABEL_LENGTH);
+        /* Store the label in the array along with the filename */
+        strcpy(labeled_label, label);
+        strcat(labeled_label, "@");
+        strcat(labeled_label, filename);
+
+        strcpy(labels[num_labels], labeled_label);
         num_labels++;
 
         return 1; /* Valid label found and stored */
@@ -708,9 +714,10 @@ char all_labels[MAX_LABELS][MAX_LABELS];
 int num_all_labels = 0;
 
 /*Function that finds .entry , .extern validate the label and store the label in an array*/
-int valid_entry_extern(char *line) {
+int valid_entry_extern(char *line, char *filename) {
     char *token;
     int i;
+    char labeled_file[MAX_LABELS];
 
     /* Check if the line is empty */
     if (line == NULL || *line == '\0') {
@@ -745,24 +752,27 @@ int valid_entry_extern(char *line) {
             return 0; /* Invalid label after ".entry" or ".extern" */
         }
 
-
+        /* Append the filename to the label */
+        strcpy(labeled_file, token);
+        strcat(labeled_file, "@");
+        strcat(labeled_file, filename);
 
         /* Check if the label already exists in the array */
         for (i = 0; i < num_all_labels; i++) {
-            if (strcmp(all_labels[i], token) == 0) {
-                printf(DUP_LABEL, token);
+            if (strcmp(all_labels[i], labeled_file) == 0) {
+                printf(DUP_LABEL, labeled_file);
                 return 0; /* Label already encountered */
             }
         }
 
         /* Add the label to the array and increment the counter */
-        strcpy(all_labels[num_all_labels], token);
+        strcpy(all_labels[num_all_labels], labeled_file);
         num_all_labels++;
 
         /* Check if there is anything else after the label */
         token = strtok(NULL, " \t");
         if (token != NULL) {
-            printf(EXTRA_CHARACTERS_AFTER_LABEL,token);
+            printf(EXTRA_CHARACTERS_AFTER_LABEL, token);
             return 0; /* Extra characters after the label */
         }
 
@@ -791,7 +801,7 @@ int error_check(char *line, char *filename, int line_num) {
     }
 
     /* Check if the line might contain duplicate labels */
-    if (!is_single_label(line_copy)) {
+    if (!is_single_label(line_copy,filename)) {
         result = 0;
     }
 
@@ -811,7 +821,7 @@ int error_check(char *line, char *filename, int line_num) {
     }
 
     /* Check if the .entry or .extern with a valid label */
-    if (!valid_entry_extern(line_copy)) {
+    if (!valid_entry_extern(line_copy,filename)) {
         result = 0;
     }
 
