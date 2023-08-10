@@ -57,6 +57,7 @@
   /*                           ==================================== Memory Errors ====================================            */
 
 #define MEMORY_ALLOCATION_FAILED(msg) SET_TO_RED("Error: ") msg ": Memory allocation failed\n"
+#define MEMORY_OVERFLOW SET_TO_RED("Error: ") "Memory overflow\n"
 
 int error_check(char *line, char *filename, int line_num);
 

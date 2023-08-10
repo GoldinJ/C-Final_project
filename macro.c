@@ -77,19 +77,20 @@ void expand_macros(FILE *fsrc, char* filename){
     fclose(fdst);
 }
 
-void checkout_macros(char* filename){
+int checkout_macros(char* filename){
     FILE *fsrc = NULL;
 
     fsrc = open_file(filename, ".as", "r");
 
     if(fsrc == NULL){
         fprintf(stderr, FILE_NOT_FOUND, filename);
-        return;
+        return FALSE;
     }
 
     expand_macros(fsrc, filename);
 
     fclose(fsrc);
+    return TRUE;
 }
 
 /* int main(){
