@@ -20,7 +20,7 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruc
         while(word_queue[i] != NULL){
             tmp = word_queue[i];
             
-            if (tmp->label !=NULL && (tmp->node_type == NODE_FIRST_W || tmp->node_type == NODE_DATA_W || tmp->node_type == NODE_FIRST_DATA_W)){
+            if (tmp->label !=NULL && (tmp->node_type == NODE_FIRST_W || tmp->node_type == NODE_DATA_W)){
                 insert(symbol_table, tmp->label, (void*)(long)(*dec_address));
             }
 

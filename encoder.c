@@ -601,12 +601,11 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
 
                 if(j == 0){
                     word_queue[j]->label = label;
-                    word_queue[j]->node_type = NODE_FIRST_DATA_W;
                 }
                     
                 else{
                     word_queue[j] = (machine_w*)calloc(1, sizeof(machine_w));
-                    word_queue[j]->node_type = NODE_DATA_W;
+                    word_queue[j]->label = NULL;
 
                     if(word_queue[j] == NULL){
                     fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - word_queue[j]"));
@@ -616,6 +615,7 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
 
                 d_word->data = num;
                 word_queue[j]->word.d_word = d_word;
+                word_queue[j]->node_type = NODE_DATA_W;
 
             }
             else{
@@ -647,14 +647,14 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
                 word_queue[0]->label = label;
                 d_word->data = token[j];
                 word_queue[0]->word.d_word = d_word;
-                word_queue[0]->node_type = NODE_FIRST_DATA_W;
+                
             }
     
             else{
                 d_word->data = token[j];
                 word_queue[j-1] = (machine_w*)malloc(sizeof(machine_w));
-                word_queue[j-1]->node_type = NODE_DATA_W;
-
+                word_queue[j-1]->label = NULL;
+                
                 if(word_queue[j-1] == NULL){
                     fprintf(stderr, MEMORY_ALLOCATION_FAILED("encode_data_w - word_queue[j-1]"));
                     exit(1);
@@ -662,6 +662,7 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
             }
 
             word_queue[j-1]->word.d_word = d_word;
+            word_queue[j-1]->node_type = NODE_DATA_W;
             
         }
 
@@ -681,6 +682,7 @@ machine_w** encode_data_w(char **line, char *label, int token_type, int start_in
          }
 
         word_queue[j-1]->word.d_word = d_word;
+        word_queue[j-1]->label = NULL;
         word_queue[j-1]->node_type = NODE_DATA_W;
 
     
