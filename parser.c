@@ -26,34 +26,38 @@ void clean_whitespaces(char *str) {
     int i;
     int len = strlen(str);
     int inWhitespace = FALSE;
+    int insideQuotes = FALSE;  /* Track if inside quotation marks */
     int newIndex = 0;
 
     for (i = 0; i < len; i++) {
-        if (str[i] == ' ' || str[i] == '\t') {
+        if (str[i] == '"' && (i == 0 || str[i - 1] != '\\')) {
+            insideQuotes = !insideQuotes;
+            str[newIndex++] = '"';
+        } else if (insideQuotes) {
+            str[newIndex++] = str[i];
+        } else if (str[i] == ' ' || str[i] == '\t') {
             if (!inWhitespace) {
                 inWhitespace = TRUE;
                 str[newIndex++] = ' ';
             }
         } else if (str[i] == ',') {
             if (newIndex > 0 && str[newIndex - 1] == ' ') {
-                str[newIndex - 1] = ','; /*  Remove space before comma */
+                str[newIndex - 1] = ',';
             } else {
-                str[newIndex++] = ','; /*  Add comma */
+                str[newIndex++] = ',';
             }
-            str[newIndex++] = ' '; /*  Add single space after comma */
-            inWhitespace = TRUE; /*  Set to true to avoid consecutive spaces */
+            inWhitespace = TRUE; /* Set to true to avoid consecutive spaces */
         } else {
             inWhitespace = FALSE;
             str[newIndex++] = str[i];
         }
     }
 
-     if (newIndex > 0 && str[newIndex - 1] == ' ') {
-        str[newIndex - 1] = '\0';
+    if (newIndex > 0 && str[newIndex - 1] == ' ') {
+        str[newIndex - 1] = '\0'; /* Remove trailing space if any */
     } else {
         str[newIndex] = '\0';
     }
-
 }
 
 char* duplicate_str(const char* source) {
