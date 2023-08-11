@@ -3,10 +3,9 @@
 int EC = 0;
 int LINE_CNT = 0; 
 
-int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *data_list, char **instruction, char* filename){
+int process_word_queue(LinkedList *list, LinkedList *data_list, char **instruction, char* filename, int *IC, int *DC){
     int i;
     int is_data;
-    static int dec_address = 100;
     machine_w* tmp;
     machine_w** word_queue = encode(instruction);
 
@@ -22,16 +21,15 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *da
         while(word_queue[i] != NULL){
             tmp = word_queue[i];
             is_data = (tmp->node_type == NODE_DATA_W)?TRUE:FALSE;
-            
-            if (tmp->label !=NULL && (tmp->node_type == NODE_FIRST_W || tmp->node_type == NODE_DATA_W)){
-                insert(symbol_table, tmp->label, (void*)(long)(dec_address));
-            }
 
             if(is_data){
                 if(i == 0)
                     add_node(data_list, instruction, tmp);
                 else
                     add_node(data_list, NULL, tmp);
+
+                (*DC)++;
+                
             }
             else{
 
@@ -39,10 +37,11 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *da
                     add_node(list, instruction, tmp);
                 else
                     add_node(list, NULL, tmp);
+
+                (*IC)++;
             }
 
             i++;
-            dec_address++;
         }
 
     }
@@ -107,6 +106,29 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
     return TRUE;
 }
 
+void update_labels(LinkedList *list, HashTable *symbol_table){
+    Node *tmp_node;
+    Node *current_node = list->head;
+    int node_type;
+    char *label;
+    int dec_address = START_ADDRESS;
+
+    while (current_node != NULL)
+    {
+        tmp_node = current_node;
+        current_node = current_node->next;
+        node_type = tmp_node->word->node_type;
+        label = tmp_node->word->label;
+
+        if(label != NULL && (node_type == NODE_FIRST_W || node_type == NODE_DATA_W))
+            insert(symbol_table, label, (void*)(long)dec_address);
+
+        dec_address++;
+
+    }
+    
+}
+
 int write_label_to_file(FILE **fptr, char* filename, char* extension, char* label, int address){
 
     if(*fptr == NULL){
@@ -123,7 +145,7 @@ int write_label_to_file(FILE **fptr, char* filename, char* extension, char* labe
     return TRUE;
 }
 
-void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
+void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols, int *IC, int *DC){
     char *line = NULL;
     char *line_copy = NULL;
     char **instruction = NULL;
@@ -159,17 +181,18 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
         instruction = parse_command(line_copy);
     
         if(process_symbols(instruction, external_symbols, entry_symbols, filename))
-            process_word_queue(symbol_table, list, data_list, instruction, filename);
+            process_word_queue(list, data_list, instruction, filename, IC, DC);
 
         free(line_copy);
         free(line);
     }
-
+    
     add_list(list, data_list);
+    update_labels(list, symbol_table);
 
 }
 
-void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols, int *IC, int *DC){
+void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols, int IC, int DC){
     
     int cnt = 0;
     char *label;
@@ -186,11 +209,6 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
         tmp_node = current_node;
         current_node = current_node->next;
         label = tmp_node->word->label;
-
-        if(tmp_node->word->node_type == NODE_DATA_W || tmp_node->word->node_type == NODE_FIRST_DATA_W)
-            (*DC)++;
-        else
-            (*IC)++;
 
         if(label != NULL){ /*Its a first_w or an imdt_drct_w*/
             
@@ -312,8 +330,8 @@ void process_input(char* filename){
         return;
     }
 
-    first_pass(fsrc, filename, &list, &data_list, symbol_table, external_symbols, entry_symbols);
-    second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
+    first_pass(fsrc, filename, &list, &data_list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
+    second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, IC, DC);
     MEMORY_SIZE = MEMORY_SIZE - IC - DC;
 
     printf("Extern symbols:\n----------------------\n");
@@ -322,7 +340,10 @@ void process_input(char* filename){
     printHashTable(entry_symbols);
     printf("Symbols table:\n----------------------\n");
     printHashTable(symbol_table);
+    printf("----------------------\n");
+    printf("IC: %d\tDC: %d\n", IC, DC);
     print_list(&list, FALSE);
+    
 
     if(MEMORY_SIZE < 0){
         EC++;

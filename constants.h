@@ -12,6 +12,7 @@
 #define MAX_LABEL_LEN 31
 #define MAX_INT_VALUE 1023
 #define MIN_INT_VALUE -1023
+#define START_ADDRESS 100
 
 #define IN_RANGE(c, from, to) (c>=from && c<=to)
 #define IS_VALID_CHAR(c) (isalnum(c) || (c) == '+' || (c) == '-' || (c) == '.' || (c) == '@' || (c) == '"')
