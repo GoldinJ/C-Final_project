@@ -3,9 +3,10 @@
 int EC = 0;
 int LINE_CNT = 0; 
 
-int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *data_list, char **instruction, int *dec_address, char* filename){
+int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *data_list, char **instruction, char* filename){
     int i;
     int is_data;
+    static int dec_address = 100;
     machine_w* tmp;
     machine_w** word_queue = encode(instruction);
 
@@ -23,7 +24,7 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *da
             is_data = (tmp->node_type == NODE_DATA_W)?TRUE:FALSE;
             
             if (tmp->label !=NULL && (tmp->node_type == NODE_FIRST_W || tmp->node_type == NODE_DATA_W)){
-                insert(symbol_table, tmp->label, (void*)(long)(*dec_address));
+                insert(symbol_table, tmp->label, (void*)(long)(dec_address));
             }
 
             if(is_data){
@@ -41,7 +42,7 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *da
             }
 
             i++;
-            (*dec_address)++;
+            dec_address++;
         }
 
     }
@@ -127,7 +128,6 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
     char *line_copy = NULL;
     char **instruction = NULL;
     int line_len = 0;
-    int dec_address = 100;
 
     LINE_CNT = 0;
 
@@ -159,7 +159,7 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
         instruction = parse_command(line_copy);
     
         if(process_symbols(instruction, external_symbols, entry_symbols, filename))
-            process_word_queue(symbol_table, list, data_list, instruction, &dec_address, filename);
+            process_word_queue(symbol_table, list, data_list, instruction, filename);
 
         free(line_copy);
         free(line);
