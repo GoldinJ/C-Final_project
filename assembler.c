@@ -3,8 +3,9 @@
 int EC = 0;
 int LINE_CNT = 0; 
 
-int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruction, int *dec_address, char* filename){
+int process_word_queue(HashTable* symbol_table, LinkedList *list, LinkedList *data_list, char **instruction, int *dec_address, char* filename){
     int i;
+    int is_data;
     machine_w* tmp;
     machine_w** word_queue = encode(instruction);
 
@@ -19,18 +20,30 @@ int process_word_queue(HashTable* symbol_table, LinkedList *list, char **instruc
         i = 0;
         while(word_queue[i] != NULL){
             tmp = word_queue[i];
+            is_data = (tmp->node_type == NODE_DATA_W)?TRUE:FALSE;
             
             if (tmp->label !=NULL && (tmp->node_type == NODE_FIRST_W || tmp->node_type == NODE_DATA_W)){
                 insert(symbol_table, tmp->label, (void*)(long)(*dec_address));
             }
 
-            if (i == 0)
-                add_node(list, instruction, tmp);
-            else
-                add_node(list, NULL, tmp);
+            if(is_data){
+                if(i == 0)
+                    add_node(data_list, instruction, tmp);
+                else
+                    add_node(data_list, NULL, tmp);
+            }
+            else{
+
+                if(i == 0)
+                    add_node(list, instruction, tmp);
+                else
+                    add_node(list, NULL, tmp);
+            }
+
             i++;
             (*dec_address)++;
         }
+
     }
 
     free(word_queue);
@@ -109,7 +122,7 @@ int write_label_to_file(FILE **fptr, char* filename, char* extension, char* labe
     return TRUE;
 }
 
-void first_pass(FILE *fptr, char *filename, LinkedList *list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
+void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_list, HashTable *symbol_table, HashTable *external_symbols, HashTable *entry_symbols){
     char *line = NULL;
     char *line_copy = NULL;
     char **instruction = NULL;
@@ -146,11 +159,13 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, HashTable *symbol_
         instruction = parse_command(line_copy);
     
         if(process_symbols(instruction, external_symbols, entry_symbols, filename))
-            process_word_queue(symbol_table, list, instruction, &dec_address, filename);
+            process_word_queue(symbol_table, list, data_list, instruction, &dec_address, filename);
 
         free(line_copy);
         free(line);
     }
+
+    add_list(list, data_list);
 
 }
 
@@ -283,8 +298,12 @@ void process_input(char* filename){
     HashTable* entry_symbols = createHashTable();
     
     LinkedList list;
+    LinkedList data_list;
     list.head = NULL;
     list.tail = NULL;
+    data_list.head = NULL;
+    data_list.tail = NULL;
+
 
     fsrc = open_file(filename, ".am", "r");
 
@@ -293,7 +312,7 @@ void process_input(char* filename){
         return;
     }
 
-    first_pass(fsrc, filename, &list, symbol_table, external_symbols, entry_symbols);
+    first_pass(fsrc, filename, &list, &data_list, symbol_table, external_symbols, entry_symbols);
     second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, &IC, &DC);
     MEMORY_SIZE = MEMORY_SIZE - IC - DC;
 

@@ -18,6 +18,7 @@ typedef struct LinkedList {
 } LinkedList;
 
 void add_node(LinkedList* lst, char** instruction, machine_w* word);
+void add_list(LinkedList* origin, LinkedList* new);
 void print_list(LinkedList* lst, int reverse);
 void print_to_file(FILE *fptr, LinkedList *lst, int reverse);
 void free_list(LinkedList* lst);

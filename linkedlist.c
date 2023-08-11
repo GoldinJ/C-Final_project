@@ -25,6 +25,26 @@ void add_node(LinkedList* lst, char** instruction, machine_w* word) {
     }
 }
 
+void add_list(LinkedList* origin, LinkedList* new) {
+    if (origin == NULL || new == NULL || new->head == NULL) { /*Both lists are empty*/
+        return; 
+    }
+
+    if (origin->head == NULL) { /* If the origin list is empty, simply point origin's head and tail to new's head and tail*/
+        origin->head = new->head;
+        origin->tail = new->tail;
+    } else {                    /* Otherwise, connect the origin's tail node to the new list's head node*/
+        
+        (origin->tail)->next = new->head;
+        (new->head)->prev = origin->tail;
+        origin->tail = new->tail; /* Update the origin's tail to new's tail*/
+    }
+
+    /* Clear the new list to avoid duplicate nodes in memory*/
+    new->head = NULL;
+    new->tail = NULL;
+}
+
 void free_list(LinkedList* list) {
     Node* current = list->head;
     Node* temp = NULL;
