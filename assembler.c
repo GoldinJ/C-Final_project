@@ -11,7 +11,7 @@ int process_word_queue(LinkedList *list, LinkedList *data_list, char **instructi
 
     if(word_queue == NULL){
         EC++;
-        fprintf(stderr, ERROR_LOCATION, filename, LINE_CNT);
+        fprintf(stderr, ERROR_LOCATION_NL, filename, LINE_CNT);
         return FALSE;
     }
 
@@ -69,7 +69,7 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
                 free_command(instruction);
                 instruction = NULL;
                 EC++;
-                fprintf(stderr, ERROR_LOCATION, filename, EC);
+                fprintf(stderr, ERROR_LOCATION_NL, filename, EC);
                 return FALSE;
                 break;
 
@@ -83,9 +83,9 @@ int process_symbols(char** instruction, HashTable *external_symbols, HashTable *
 
             case TOKEN_LABEL:
                 if(is_ent)
-                    insert(entry_symbols, instruction[i], (void*)(long)R);
+                    insert(entry_symbols, instruction[i], (void*)(long)LINE_CNT);
                 else if (is_ext)
-                    insert(external_symbols, instruction[i], (void*)(long)E);
+                    insert(external_symbols, instruction[i], (void*)(long)LINE_CNT);
 
                 break;
                 
@@ -150,6 +150,7 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
     char *line_copy = NULL;
     char **instruction = NULL;
     int line_len = 0;
+    char *missing_label;
 
     LINE_CNT = 0;
 
@@ -182,7 +183,7 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
     
         if(process_symbols(instruction, external_symbols, entry_symbols, filename))
             process_word_queue(list, data_list, instruction, filename, IC, DC);
-            
+
         free(line_copy);
         free(line);
 
@@ -190,6 +191,14 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
     
     add_list(list, data_list);
     update_labels(list, symbol_table);
+    missing_label = isSubset(entry_symbols, symbol_table);
+
+    if(missing_label != NULL){
+        EC++;
+        fprintf(stderr, LABEL_DECLARATION_MISSING, missing_label);
+        fprintf(stderr, ERROR_LOCATION_NL, filename, (int)(long)get(entry_symbols, missing_label));
+    }
+    
 
 }
 
@@ -238,7 +247,7 @@ void second_pass(char *filename, LinkedList *list, HashTable *symbol_table, Hash
 
                 else if(get(symbol_table, label) == 0){
                     EC++;
-                    fprintf(stderr, "Error: Label - '%s' - declaration is missing\n", label);
+                    fprintf(stderr, LABEL_DECLARATION_MISSING, label);
                     break;
                 }
 

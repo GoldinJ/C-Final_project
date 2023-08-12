@@ -34,6 +34,8 @@ void* get(HashTable* table, const char* key);
 
 void removeEntry(HashTable* table, const char* key);
 
+char* isSubset(HashTable* table1, HashTable* table2);
+
 void printHashTable(HashTable* table); 
 
 void freeHashtable(HashTable* table);

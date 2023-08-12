@@ -62,6 +62,23 @@ void* get(HashTable* table, const char* key) {
     return NULL;
 }
 
+char* isSubset(HashTable* table1, HashTable* table2) {
+    int i = 0;
+    void* value;
+    for (; i < TABLE_SIZE; i++) {
+        Entry* entry = table1->entries[i];
+        while (entry != NULL) {
+            value = get(table2, entry->key);
+            if (value == NULL) {
+                return entry->key;
+            }
+            entry = entry->next;
+        }
+    }
+
+    return NULL;
+}
+
 void removeEntry(HashTable* table, const char* key) {
     unsigned int index = hash(key) % TABLE_SIZE;
 
