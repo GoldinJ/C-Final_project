@@ -182,9 +182,10 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
     
         if(process_symbols(instruction, external_symbols, entry_symbols, filename))
             process_word_queue(list, data_list, instruction, filename, IC, DC);
-
+            
         free(line_copy);
         free(line);
+
     }
     
     add_list(list, data_list);

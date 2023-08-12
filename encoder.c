@@ -331,7 +331,7 @@ void encode_source_operand(first_w* f_word, char** line, int* i, machine_w*** wo
 }
 
 void encode_dest_operand(first_w* f_word, char** line, int* i, machine_w*** word_queue, int opcode_index) {
-    int queue_idx = (opcode_index>LEA)?1:2;
+    int queue_idx = (opcode_index>LEA || opcode_index == NOT || opcode_index == CLR)?1:2;
     
     if((*word_queue) == NULL){
         return;
