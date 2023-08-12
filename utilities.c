@@ -53,7 +53,7 @@ void remove_file(char *filename, char *extension){
     char* _filename = (char*)malloc(strlen(filename)+strlen(extension)+1);
 
     if(_filename == NULL){
-        fprintf(stderr, "open_file: Memory allocation failed\n");
+        fprintf(stderr, MEMORY_ALLOCATION_FAILED("remove_file"));
         exit(1);                     
     }
 
