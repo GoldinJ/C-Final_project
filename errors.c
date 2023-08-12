@@ -630,7 +630,7 @@ int is_directive(char* line) {
 
             /* Check if the content inside the double quotes consists of letters and spaces only */
             while (*line != '\0' && *line != '\"') {
-                if (!isalpha(*line) && !isspace(*line)) {
+                if (!isprint(*line) && !isspace(*line)) {
                     printf(INVALID_STRING_DEFINITION_ERROR, line);
                     return 0; /* Invalid character inside the string */
                 }
@@ -826,7 +826,7 @@ int error_check(char *line, char *filename, int line_num) {
     }
 
     if (!result) {
-        printf(ERROR_CHECK, filename, line_num, line);
+        printf(ERROR_LOCATION, filename, line_num, line);
     }
 
     return result;

@@ -9,7 +9,8 @@
 #define MAX_LINE_LENGTH 80
 
 #define SET_TO_RED(msg) "\033[1;31m" msg "\033[0m"
-#define ERROR_LOCATION "(at:%s.am:line:%d)\n"
+#define ERROR_LOCATION "(In file: %s.am, line :%d - '%s')\n\n"
+#define ERROR_LOCATION_NL "(In file: %s.am, line: %d)\n\n"
 /*                           ==================================== Syntax Errors ====================================                                */
 
 #define INVALID_LABEL_SYNTAX  SET_TO_RED("Error: ") "Invalid character - '%c' in label defenition\n"
@@ -38,6 +39,7 @@
 #define INVALID_OPCODES      SET_TO_RED("Error: ") "Invalid opcode - '%s' \n"
 #define DUPLICATE_LABEL SET_TO_RED("Error: ") "Duplicate label found in - '%s'\n"
 #define LABEL_IS_RESERVED_WORD SET_TO_RED("Error: ") "Label is a reserved word - '%s'\n"
+#define LABEL_DECLARATION_MISSING SET_TO_RED("Error: ") "Label - '%s' - declaration is missing\n"
 
 #define ERRORS_DETECTED SET_TO_RED("Error: ") "Errors have been detected in the file \n"
 
@@ -46,7 +48,6 @@
 #define NO_VALID_DATA  SET_TO_RED("Error: ") "Invalid data input  \n"
 #define INVALID_OPCODE_COMMA  SET_TO_RED("Error: ") "Invalid comma found in line \n"
 #define EXTRA_CHARACTERS_AFTER_LABEL SET_TO_RED("Error: ") "Invalid definition after the label - %s\n"
-#define ERROR_CHECK  "in file %s , line %d: %s\n\n"
 
 
 
