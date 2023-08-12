@@ -2,6 +2,7 @@
 #define UTILITIES_H
 
 #include "constants.h"
+#include "errors.h"
 
 
 char* int_to_Base64(int binary);

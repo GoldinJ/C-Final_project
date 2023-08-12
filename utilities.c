@@ -39,7 +39,8 @@ FILE *open_file(char* filename, char* extension, char* mode){
     fptr = fopen(_filename, mode);
 
     if(fptr == NULL){
-        fprintf(stderr, "open_file: Failed to open - '%s'\n", _filename);
+        fprintf(stderr, FILE_NOT_FOUND, _filename);
+        free(_filename);
         return NULL;
     }
 

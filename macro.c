@@ -84,7 +84,6 @@ int checkout_macros(char* filename){
     fsrc = open_file(filename, ".as", "r");
 
     if(fsrc == NULL){
-        fprintf(stderr, FILE_NOT_FOUND, filename);
         return FALSE;
     }
 

@@ -149,7 +149,6 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
     char *line = NULL;
     char *line_copy = NULL;
     char **instruction = NULL;
-    int line_len = 0;
     char *missing_label;
 
     LINE_CNT = 0;
@@ -342,7 +341,7 @@ void process_input(char* filename){
     second_pass(filename, &list, symbol_table, external_symbols, entry_symbols, IC, DC);
     MEMORY_SIZE = MEMORY_SIZE - IC - DC;
 
-    printf("Extern symbols:\n----------------------\n");
+    /* printf("Extern symbols:\n----------------------\n");
     printHashTable(external_symbols);
     printf("Entry symbols:\n----------------------\n");
     printHashTable(entry_symbols);
@@ -350,7 +349,7 @@ void process_input(char* filename){
     printHashTable(symbol_table);
     printf("----------------------\n");
     printf("IC: %d\tDC: %d\n", IC, DC);
-    print_list(&list, FALSE);
+    print_list(&list, FALSE); */
     
 
     if(MEMORY_SIZE < 0){
@@ -383,7 +382,7 @@ int main(int argc, char *argv[]){
         for(i = 1; i<argc; i++){
             
             file_name = duplicateString(argv[i]);
-            if(checkout_macros(file_name));
+            if(checkout_macros(file_name))
                 process_input(file_name);
             free(file_name);
         }
