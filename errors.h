@@ -40,16 +40,12 @@
 #define DUPLICATE_LABEL SET_TO_RED("Error: ") "Duplicate label found in - '%s'\n"
 #define LABEL_IS_RESERVED_WORD SET_TO_RED("Error: ") "Label is a reserved word - '%s'\n"
 #define LABEL_DECLARATION_MISSING SET_TO_RED("Error: ") "Label - '%s' - declaration is missing\n"
-
 #define ERRORS_DETECTED SET_TO_RED("Error: ") "Errors have been detected in the file \n"
-
 #define EXTRA_CHARACTERS_AFTER_STRING     SET_TO_RED("Error: ") "character definition not allowed here- '%s' \n"
 #define MISSING_CLOSING_QUOTE     SET_TO_RED("Error: ") "missing '\"' in %s \n"
 #define NO_VALID_DATA  SET_TO_RED("Error: ") "Invalid data input  \n"
 #define INVALID_OPCODE_COMMA  SET_TO_RED("Error: ") "Invalid comma found in line \n"
 #define EXTRA_CHARACTERS_AFTER_LABEL SET_TO_RED("Error: ") "Invalid definition after the label - %s\n"
-
-
 
 /*                           ==================================== File Errors ====================================            */
                 
