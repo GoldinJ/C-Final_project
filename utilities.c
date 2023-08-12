@@ -75,6 +75,7 @@ char* duplicateString(const char* source) {
     destination = (char*)malloc(length + 1);
     if (destination != NULL) {
         strcpy(destination, source);
+        destination[length] = '\0';
     }
 
     return destination;

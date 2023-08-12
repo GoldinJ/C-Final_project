@@ -176,9 +176,7 @@ void first_pass(FILE *fptr, char *filename, LinkedList *list, LinkedList *data_l
         } */
 
         
-        line_len = strlen(line);
-        line_copy = malloc((line_len + 1) * sizeof(char));
-        strcpy(line_copy, line);
+        line_copy = duplicateString(line);
         instruction = parse_command(line_copy);
     
         if(process_symbols(instruction, external_symbols, entry_symbols, filename))

@@ -81,6 +81,7 @@ char* get_line(FILE *fptr){
     char c;
     int line_len = 20;
     char* line = malloc(line_len*sizeof(char));
+    char *new_line;
  
     if (line == NULL){
         printf("get_line: Memory allocation failed");
@@ -111,14 +112,16 @@ char* get_line(FILE *fptr){
             exit(1);
         }
 
-        if(cnt == line_len){
+        if(cnt == line_len - 1){
             line_len += 10;
-            line = realloc(line, line_len*sizeof(char));
+            new_line = realloc(line, line_len*sizeof(char));
 
-            if (line == NULL){
-                printf("get_line: Memory allocation failed");
+            if (new_line == NULL){
+                fprintf(stderr, MEMORY_ALLOCATION_FAILED("get_line() - new_line"));
                 exit(1);
             }
+
+            line = new_line;
 
         }
 
