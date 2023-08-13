@@ -18,7 +18,7 @@ Use makefile to compile the project like this:
 ```
 >   make
 ```
-**Note:** A **full path** should be provided in case the `<file>.as` file is not in a **root** directory.
+**Note:** A **full path** should be provided in case the `<path>/<file>.as` file is not in a **root** directory.
 
 After preparing assembly files **with an `.as` extension**, open *terminal* and pass file names as arguments (without the file extensions) as following:
 
