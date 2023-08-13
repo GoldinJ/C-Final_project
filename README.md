@@ -105,7 +105,7 @@ The commands and operand field that are allowed:
 |	9	|	jmp	| null                   |  Label,Register  | 
 |	10	|	bne	| null                   | Label,Register |
 |	11	|	red	| null                   |  Label,Register| 
-|	12	|	prn	| Label,Integer,Register |  Label,Integer,Register|
+|	12	|	prn	| null                   |  Label,Integer,Register|
 |	13	|	jsr	| null                   |  Label,Register  |
 |	14	|	rts	| null                   | null               |
 |	15	|	stop	| null                   | null               | 
