@@ -1,3 +1,4 @@
+
 # C-Course-Assembler-Project
 The final assignment (#14) of the C course (20465) at The Open University.  
 Written by: 
@@ -105,36 +106,45 @@ A **_directive_** line of the following structure:
    This way, the directive `.extern HELLO` in `file2.as` will match the `.entry` directive in the previous example.
 
 ## Instructions
+A **_instruction_** line of the following structure:
 
-Instruction line will consist of 3-4 fields:
+ - An **optional** preceding *label*. e.g. `PLACE1: `.
+ - An _opcode_ (command)
+ - Operands according to the type of the *opcode*.
 
-| LABEL   | OPCODE | OPERAND1  | OPERAND2 |
-|---------|--------|-----------|----------|
-OR
-
-| OPCODE | OPERAND1  | OPERAND2 |
-|---------|--------|-----------|
-
-- for example: 
-
-```
->   HELLO: mov @r3 , @r7
-```
+	### `mov, cmp, add, sub, lea`
+	Instruction of this type has to takes 2 operands and has a following structure: 
+	`<label>: <opcode> <source-operand>, <destination-operand> ` 
+	e.g. `HELLO: add 1, @r3`
 
 
-- LABEL: is a word consists of letter or numbers and is a maximum of 31 characters long and ends with ' : ' , it will appear at the beginning of an instruction (note: the label can't be one of the reserved word of the language).
+	### `not, clr, inc, dec, jmp, bne, red, prn, jsr`
+	Instruction of this type has to takes a single operand and has a following structure: 
+	`<label>: <opcode> <destination-operand> `
+	e.g `ML: prn -5`
+
+	### `stop, rts`
+	Instruction of this type has no operands. And has a following structure:
+	`<label>: <opcode>`
+	e.g. `STOP: stop` 
+	
 
 
-- OPCODE: 1 of the 16 allowed opcode(see commands section) , it will determine the action done on the operand fields.
+	 ### Label:
+	 A **label** is a sequence of up to 31 characters composed of letters or numbers. It must not be one of the reserved words 		of the language. A label always ends with a colon (`:`) and is placed at the beginning of an instruction.
+	 **Note**: Labels used within operand fields should not include the colon (`:`) that marks the end of a label.
 
+	### Opcode:
+	An **opcode** is one of the 16 allowed commands, which dictate the operation to be performed on the operand fields.
 
-- OPERAND1:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
+	### Source operand
 
+	Depending on the type of opcode, **operand1** can be one of three types: a label, a register, or an integer.
 
-- OPERAND2:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
-- note: in the operand fields the label will not contain ':'
+	### Target operand
 
+	Similar to operand1, **operand2** can be one of three types: a label, a register, or an integer.
 
-- INTEGER: in our language integer is a whole number positive or negative. 
+	### Integer
 
-
+	In this language, an **integer** refers to a whole number that can be positive or negative.
