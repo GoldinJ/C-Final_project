@@ -27,9 +27,10 @@ As for the files x.as, y.as, hello.as we will run:
 >   assembler x y hello
 ```
 The assembler will generate output files with the same filenames and the following extensions:  
-- `.ob` - Object file
+- `.ob`  - Object file
 - `.ent` - Entries file
 - `.ext` - Externals file
+- `.am`  - After Macro files
 
 An example of input and output files can be found under the 'tests' folder.
 
@@ -40,7 +41,7 @@ An example of input and output files can be found under the 'tests' folder.
 - Uses signed *2's complement* arithmetic for integers (with no support for real numbers).
 
    ### Registers
-   The CPU has 9 registers: 8 general registers (named r1,r2,...,r8).
+   The CPU has 9 registers: 8 general registers (named r0,r2,...,r7).
 
 ## Instruction Structure
 Every software *instruction* is encoded into a few *words* in memory (max is 5 *words*).
@@ -52,27 +53,62 @@ The first word is of the following structure:
 
 Encoding of each instruction word is done using **base64** as defined here: [link](https://en.wikipedia.org/wiki/Base64)
 
-## Commands
-The commands allowed in bits 6-9 are:
 
-| Opcode (decimal) | Command Name |
-| ---------------- | ------------ |
-|	0	|	mov	|
-|	1	|	cmp	|
-|	2	|	add	|
-|	3	|	sub	|
-|	4	|	not	|
-|	5	|	clr	|
-|	6	|	lea	|
-|	7	|	inc	|
-|	8	|	dec	|
-|	9	|	jmp	|
-|	10	|	bne	|
-|	11	|	red	|
-|	12	|	prn	|
-|	13	|	jsr	|
-|	14	|	rts	|
-|	15	|	stop	|
+## INSTRUCTION LINE
+
+Instruction line will consist of 3-4 fields:
+
+| LABEL   | OPCODE | OPERAND1  | OPERAND2 |
+|---------|--------|-----------|----------|
+OR
+
+| OPCODE | OPERAND1  | OPERAND2 |
+|---------|--------|-----------|
+
+- for example: 
+
+```
+>   HELLO: mov @r3 , @r7
+```
+
+
+- LABEL: is a word consists of letter or numbers and is a maximum of 31 characters long and ends with ' : ' , it will appear at the beginning of an instruction (note: the label can't be one of the reserved word of the language).
+
+
+- OPCODE: 1 of the 16 allowed opcode(see commands section) , it will determine the action done on the operand fields.
+
+
+- OPERAND1:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
+
+
+- OPERAND2:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
+- note: in the operand fields the label will not contain ':'
+
+
+- INTEGER: in our language integer is a whole number positive or negative. 
+
+
+## Commands
+The commands and operand field that are allowed:
+
+| Opcode (decimal) | Command Name | Operand1               | Operand2           |
+| ---------------- | ------------ |------------------------|--------------------|
+|	0	|	mov	| Label,Integer,Register | Label,Register     |
+|	1	|	cmp	| Label,Integer,Register | Label,Integer,Register | 
+|	2	|	add	| Label,Integer,Register | Label,Register     | 
+|	3	|	sub	| Label,Integer,Register | Label,Register     | 
+|	4	|	not	| null                   | Label,Register | 
+|	5	|	clr	| null                   | Label,Register | 
+|	6	|	lea	| Label                  | Label,Register     |
+|	7	|	inc	| null                   | Label,Register | 
+|	8	|	dec	| null                   | Label,Register  | 
+|	9	|	jmp	| null                   |  Label,Register  | 
+|	10	|	bne	| null                   | Label,Register |
+|	11	|	red	| null                   |  Label,Register| 
+|	12	|	prn	| Label,Integer,Register |  Label,Integer,Register|
+|	13	|	jsr	| null                   |  Label,Register  |
+|	14	|	rts	| null                   | null               |
+|	15	|	stop	| null                   | null               | 
 
 ## Directives
 A **_directive_** line of the following structure:
