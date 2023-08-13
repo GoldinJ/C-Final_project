@@ -542,6 +542,7 @@ int is_valid_data(const char *str) {
     int has_number = 0; /* Flag to track if at least one valid number is encountered */
     int has_comma = 0;  /* Flag to track if at least one comma is encountered */
     char *endptr;
+    int value;
 
     while (*str) {
         /* Skip whitespace characters */
@@ -562,12 +563,18 @@ int is_valid_data(const char *str) {
         }
 
         /* Attempt to convert the current part of the string to a long integer */
-        strtol(str, &endptr, 10);
+        value = strtol(str, &endptr, 10);
 
         /* Check if strtol failed or if there is an invalid character after the number */
         if (str == endptr) {
             printf(INVALID_DATA_CHAR, *str);
             return 0; /* Invalid character */
+        }
+
+        /* Check if the value is within the desired range */
+        if (value < -1024 || value > 1024) {
+            printf(INVALID_DATA_RANGE, value);
+            return 0; /* Value out of range */
         }
 
         has_number = 1;

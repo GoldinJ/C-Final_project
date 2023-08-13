@@ -46,6 +46,7 @@
 #define NO_VALID_DATA  SET_TO_RED("Error: ") "Invalid data input  \n"
 #define INVALID_OPCODE_COMMA  SET_TO_RED("Error: ") "Invalid comma found in line \n"
 #define EXTRA_CHARACTERS_AFTER_LABEL SET_TO_RED("Error: ") "Invalid definition after the label - %s\n"
+#define INVALID_DATA_RANGE    SET_TO_RED("Error: ") "Illigal number %c \n"
 
 /*                           ==================================== File Errors ====================================            */
                 
