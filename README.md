@@ -30,7 +30,7 @@ The assembler will generate output files with the same filenames and the followi
 - `.ob`  - Object file
 - `.ent` - Entries file
 - `.ext` - Externals file
-- `.am`  - After Macro files
+- `.am`  - `.as` file after macros exspansion
 
 An example of input and output files can be found under the 'tests' folder.
 
@@ -52,41 +52,6 @@ The first word is of the following structure:
 |           Source operand addressing method         | Opcode | Destination operand addressing method | A,R,E
 
 Encoding of each instruction word is done using **base64** as defined here: [link](https://en.wikipedia.org/wiki/Base64)
-
-
-## INSTRUCTION LINE
-
-Instruction line will consist of 3-4 fields:
-
-| LABEL   | OPCODE | OPERAND1  | OPERAND2 |
-|---------|--------|-----------|----------|
-OR
-
-| OPCODE | OPERAND1  | OPERAND2 |
-|---------|--------|-----------|
-
-- for example: 
-
-```
->   HELLO: mov @r3 , @r7
-```
-
-
-- LABEL: is a word consists of letter or numbers and is a maximum of 31 characters long and ends with ' : ' , it will appear at the beginning of an instruction (note: the label can't be one of the reserved word of the language).
-
-
-- OPCODE: 1 of the 16 allowed opcode(see commands section) , it will determine the action done on the operand fields.
-
-
-- OPERAND1:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
-
-
-- OPERAND2:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
-- note: in the operand fields the label will not contain ':'
-
-
-- INTEGER: in our language integer is a whole number positive or negative. 
-
 
 ## Commands
 The commands and operand field that are allowed:
@@ -138,3 +103,38 @@ A **_directive_** line of the following structure:
    ### `.extern`
    This directive receives a name of a *label* as a parameter and declares the *label* as being external (defined in another file) and that the current file shall use it.  
    This way, the directive `.extern HELLO` in `file2.as` will match the `.entry` directive in the previous example.
+
+## Instructions
+
+Instruction line will consist of 3-4 fields:
+
+| LABEL   | OPCODE | OPERAND1  | OPERAND2 |
+|---------|--------|-----------|----------|
+OR
+
+| OPCODE | OPERAND1  | OPERAND2 |
+|---------|--------|-----------|
+
+- for example: 
+
+```
+>   HELLO: mov @r3 , @r7
+```
+
+
+- LABEL: is a word consists of letter or numbers and is a maximum of 31 characters long and ends with ' : ' , it will appear at the beginning of an instruction (note: the label can't be one of the reserved word of the language).
+
+
+- OPCODE: 1 of the 16 allowed opcode(see commands section) , it will determine the action done on the operand fields.
+
+
+- OPERAND1:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
+
+
+- OPERAND2:depending on the opcode type can receive 1 of 3 :( LABEL , REGISTER , INTEGER ).
+- note: in the operand fields the label will not contain ':'
+
+
+- INTEGER: in our language integer is a whole number positive or negative. 
+
+
