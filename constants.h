@@ -120,23 +120,6 @@ typedef struct {
     int* macro_body_counts;
 } MacroData;
 
-
-typedef struct Instruction{
-    char *label;
-    int opcode_index;
-    int num_operands;
-    int operand1_type;
-    int operand2_type;
-}Instruction;
-
-typedef struct Directive{
-    char *label;
-    int type;
-    int num_operands;
-    int operand_type;
-
-}Directive;
-
 #endif
 
 

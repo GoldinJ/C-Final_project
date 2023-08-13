@@ -30,7 +30,7 @@
 #define INVALID_LABEL_LENGTH  SET_TO_RED("Error: ") "Invalid label length - '%s'\n"
 #define INVALID_STRING_DEFINITION_ERROR (SET_TO_RED("Error: ") "String definition is invalid - %s \n")
 #define EMPTY_DATA_FIELD    (SET_TO_RED("Error: ") "data field is NULL \n")
-#define INVALID_DATA_CHAR    (SET_TO_RED("Error: ") "invalid character- %c \n")
+#define INVALID_DATA_CHAR    (SET_TO_RED("Error: ") "Invalid character- %c \n")
 #define INVALID_COMMA    (SET_TO_RED("Error: ") "invalid comma - '%c' \n")
 #define INVALID_SEMICOLON    (SET_TO_RED("Error: ") "Invalid ; placement - %c \n")
 #define MISSING_LABEL   (SET_TO_RED("Error: ") "Label is missing in - %s \n")
@@ -46,7 +46,7 @@
 #define NO_VALID_DATA  SET_TO_RED("Error: ") "Invalid data input  \n"
 #define INVALID_OPCODE_COMMA  SET_TO_RED("Error: ") "Invalid comma found in line \n"
 #define EXTRA_CHARACTERS_AFTER_LABEL SET_TO_RED("Error: ") "Invalid definition after the label - %s\n"
-#define INVALID_DATA_RANGE    SET_TO_RED("Error: ") "Illigal number %c \n"
+#define INVALID_DATA_RANGE    SET_TO_RED("Error: ") "Illegal number %c \n"
 
 /*                           ==================================== File Errors ====================================            */
                 

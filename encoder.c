@@ -296,7 +296,7 @@ void encode_source_operand(first_w* f_word, char** line, int* i, machine_w*** wo
     switch (get_token_type(line[*i]))
     {
     case TOKEN_INEGER:
-        if(opcode_index == LEA){
+        if(opcode_index == LEA){  /* LEA instruction doesn't support immediate operand */
             fprintf(stderr, WRONG_OPERAND_TYPE, line[*i]);
             free_word_queue(word_queue);
             return;
@@ -308,7 +308,7 @@ void encode_source_operand(first_w* f_word, char** line, int* i, machine_w*** wo
         break;
 
     case TOKEN_REGISTER:
-        if(opcode_index == LEA){
+        if(opcode_index == LEA){ /* LEA instruction doesn't support register operand */
             fprintf(stderr, WRONG_OPERAND_TYPE, line[*i]);
             free_word_queue(word_queue);
             return;
@@ -340,7 +340,8 @@ void encode_dest_operand(first_w* f_word, char** line, int* i, machine_w*** word
     switch (get_token_type(line[*i]))
     {
     case TOKEN_INEGER:
-        if(opcode_index != CMP && opcode_index!= PRN){
+        /* Instructions other than CMP and PRN don't support immediate operand */
+        if(opcode_index != CMP && opcode_index!= PRN){ 
             fprintf(stderr, WRONG_OPERAND_TYPE, line[*i]);
             free_word_queue(word_queue);
             return;
