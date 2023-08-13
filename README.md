@@ -141,7 +141,7 @@ A **_instruction_** line of the following structure:
 
 	Depending on the type of opcode, **operand1** can be one of three types: a label, a register, or an integer.
 
-	### Target operand
+	### Destination operand
 
 	Similar to operand1, **operand2** can be one of three types: a label, a register, or an integer.
 
