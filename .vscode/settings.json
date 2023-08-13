@@ -1,0 +1,10 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "initializer_list": "c",
+        "linkedlist.h": "c",
+        "parser.h": "c",
+        "constants.h": "c",
+        "errors.h": "c"
+    }
+}

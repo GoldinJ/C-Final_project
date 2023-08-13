@@ -1,8 +1,16 @@
-*.*
 *.o
+*.as
+*.am
+*.ob
 assembler
 debug
 !makefile
 !.gitignore
 !*.c
 !*.h
+!/home/goldinux/Documents/CProject/mmn14/test_files/
+!/test_files/*.as
+!/test_files/*.am
+!/test_files/*.ob
+!/test_files/*.ext
+!/test_files/*.ent
